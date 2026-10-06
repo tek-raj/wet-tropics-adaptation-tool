@@ -73,3 +73,11 @@
   - Part D: 10 drafts that need local, cultural or project review
   - Part E: other comments
 - The v1 worksheet with the team's comments is kept as a record.
+
+## 2026-10-06: Published to GitHub for manager review
+
+- **Public repository:** https://github.com/tek-raj/wet-tropics-adaptation-tool
+- **Live app (GitHub Pages, served from the root of `main`):** https://tek-raj.github.io/wet-tropics-adaptation-tool/
+  - The root `index.html` redirects to `app/`.
+- **Kept off GitHub by `.gitignore`:** all `.docx` files, i.e. the draft template and both team worksheets. They stay local only.
+- The README has a "For reviewers" section explaining how to test the tool and what feedback is wanted.
