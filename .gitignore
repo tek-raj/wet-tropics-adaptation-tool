@@ -1,0 +1,10 @@
+# Office temp files
+~$*
+~WRL*.tmp
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Internal drafts and team worksheets stay local (not published)
+*.docx
+*.doc
