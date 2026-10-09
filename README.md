@@ -4,7 +4,18 @@ A browser-based form that walks people through the *Distilled adaptation plannin
 
 The source template is `Distilled adaption planning DRAFT-v2.docx` (kept internally, not published here).
 
-**Live app:** https://tek-raj.github.io/wet-tropics-adaptation-tool/
+**Live app (version 1):** https://tek-raj.github.io/wet-tropics-adaptation-tool/
+
+**Version 2 (draft, for feedback):** https://tek-raj.github.io/wet-tropics-adaptation-tool/v2/
+
+Version 2 adds:
+- an Overview page with climate change basics, a data-portal map and a worked example
+- photo and illustration support
+- score faces
+- site photos in the reports
+- an experimental Pathway builder
+
+Version 1 is kept unchanged in `app/`; version 2 lives in `v2/`. Each version keeps its own saved plan in the browser.
 
 ## For reviewers
 
@@ -23,7 +34,7 @@ The source template is `Distilled adaption planning DRAFT-v2.docx` (kept interna
 
 Open `app/index.html` in any modern browser (Edge, Chrome, Firefox, Safari). You don't need to install anything or be online. All libraries are bundled in `app/lib/`.
 
-- **Tabs:** Start → Species → Site → Risk assessment → Actions → Scoring → Pathway planning → Summary → Export
+- **Tabs:** Overview → Start → Species → Site → Risk assessment → Actions → Scoring → Pathway planning → Summary → Export
 - **ⓘ buttons** next to every question open the Instructions / Examples / Guidance panel and a **More information** link.
 - **Autosave:** work is saved in the browser as the user types.
 - **Save plan file / Open plan file:** saves the whole plan, including the photo, as a `.adaptplan.json` file. Users can reopen it later, move it to another computer, or email it to a colleague.
@@ -54,10 +65,15 @@ The `app/` folder is a plain static site. Upload the whole folder to any web hos
 ## Project layout
 
 ```
-app/
+v2/                 VERSION 2 (current development): same layout as app/ plus
+                    js/overview.js, js/example.js, js/icons.js, js/pathbuilder.js,
+                    illustrations/, photos/
+app/                VERSION 1 (frozen, as first shared)
   index.html        page shell
   css/style.css     styles
   js/content.js     ALL questions, guidance, examples, links  <- edit this
+  js/overview.js    Overview tab text: climate change, hazards, risk terms, SSP scenarios, process  <- edit this
+  js/example.js     worked example plan (spectacled flying-fox), shown on Overview and downloadable
   js/app.js         tabs, form logic, autosave, save/open, photo, summary drafting
   js/export.js      Word + PDF report generation
   lib/              docx 9.5.1, pdfmake 0.2.20 (bundled for offline use)

@@ -8,3 +8,7 @@ Thumbs.db
 # Internal drafts and team worksheets stay local (not published)
 *.docx
 *.doc
+
+# Local-only working material (not published)
+Images_to_use/
+samples/

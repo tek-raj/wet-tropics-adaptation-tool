@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 120" preserveAspectRatio="xMidYMid slice">
+<defs><linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9cc3cf"/><stop offset="1" stop-color="#e3eff2"/></linearGradient></defs>
+<rect width="480" height="120" fill="url(#s)"/>
+<path d="M0 88 C120 74 240 86 360 76 C420 72 460 78 480 76 L480 120 L0 120 Z" fill="#7fae7c"/>
+<path d="M0 102 C120 94 240 102 360 96 C420 93 460 98 480 97 L480 120 L0 120 Z" fill="#5c8f5f"/>
+<path d="M330 92 l2 -26 c-12 -4 -15 -17 -4 -23 c-2 -11 12 -16 19 -9 c7 -8 21 -3 19 8 c11 3 11 18 -1 21 c-6 4 -14 3 -19 -1 l-2 30 z" fill="#2f5d3a"/><path d="M400 88 l2 -26 c-12 -4 -15 -17 -4 -23 c-2 -11 12 -16 19 -9 c7 -8 21 -3 19 8 c11 3 11 18 -1 21 c-6 4 -14 3 -19 -1 l-2 30 z" fill="#2f5d3a"/><path d="M450 94 l2 -26 c-12 -4 -15 -17 -4 -23 c-2 -11 12 -16 19 -9 c7 -8 21 -3 19 8 c11 3 11 18 -1 21 c-6 4 -14 3 -19 -1 l-2 30 z" fill="#2f5d3a"/>
+<circle cx="300" cy="34" r="14" fill="#fff" opacity=".8"/><text x="300" y="40" text-anchor="middle" font-family="Arial" font-weight="700" font-size="17" fill="#3c6e71">?</text>
+</svg>

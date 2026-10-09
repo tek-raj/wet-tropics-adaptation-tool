@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 120" preserveAspectRatio="xMidYMid slice">
+<defs><linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5f7480"/><stop offset="1" stop-color="#a7b8c0"/></linearGradient></defs>
+<rect width="480" height="120" fill="url(#s)"/>
+<g fill="#4c5d66"><ellipse cx="300" cy="24" rx="50" ry="16"/><ellipse cx="350" cy="18" rx="44" ry="18"/><ellipse cx="410" cy="26" rx="56" ry="16"/></g>
+<g stroke="#dce6ea" stroke-width="2" stroke-linecap="round" opacity=".8"><line x1="270" y1="44" x2="262" y2="62"/><line x1="288" y1="44" x2="280" y2="62"/><line x1="306" y1="44" x2="298" y2="62"/><line x1="324" y1="44" x2="316" y2="62"/><line x1="342" y1="44" x2="334" y2="62"/><line x1="360" y1="44" x2="352" y2="62"/><line x1="378" y1="44" x2="370" y2="62"/><line x1="396" y1="44" x2="388" y2="62"/><line x1="414" y1="44" x2="406" y2="62"/><line x1="432" y1="44" x2="424" y2="62"/><line x1="450" y1="44" x2="442" y2="62"/><line x1="468" y1="44" x2="460" y2="62"/></g>
+<path d="M330 92 l2 -26 c-12 -4 -15 -17 -4 -23 c-2 -11 12 -16 19 -9 c7 -8 21 -3 19 8 c11 3 11 18 -1 21 c-6 4 -14 3 -19 -1 l-2 30 z" fill="#2f5d3a"/><path d="M430 90 l2 -26 c-12 -4 -15 -17 -4 -23 c-2 -11 12 -16 19 -9 c7 -8 21 -3 19 8 c11 3 11 18 -1 21 c-6 4 -14 3 -19 -1 l-2 30 z" fill="#2f5d3a"/>
+<path d="M0 84 C60 80 120 90 180 84 S300 78 360 86 S440 92 480 86 L480 120 L0 120 Z" fill="#7a5c3c" opacity=".92"/>
+<path d="M0 98 C60 94 120 104 180 98 S300 92 360 100 S440 104 480 98 L480 120 L0 120 Z" fill="#5c4530"/>
+</svg>

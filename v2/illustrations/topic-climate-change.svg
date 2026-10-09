@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice">
+  <!-- Stylised "warming stripes": colours run from cooler blues to warmer reds (illustrative, not data) -->
+  <g>
+    <rect x="0" width="40" height="500" fill="#08306b"/><rect x="40" width="40" height="500" fill="#08519c"/>
+    <rect x="80" width="40" height="500" fill="#2171b5"/><rect x="120" width="40" height="500" fill="#4292c6"/>
+    <rect x="160" width="40" height="500" fill="#2171b5"/><rect x="200" width="40" height="500" fill="#6baed6"/>
+    <rect x="240" width="40" height="500" fill="#9ecae1"/><rect x="280" width="40" height="500" fill="#6baed6"/>
+    <rect x="320" width="40" height="500" fill="#c6dbef"/><rect x="360" width="40" height="500" fill="#deebf7"/>
+    <rect x="400" width="40" height="500" fill="#fee0d2"/><rect x="440" width="40" height="500" fill="#fcbba1"/>
+    <rect x="480" width="40" height="500" fill="#fee0d2"/><rect x="520" width="40" height="500" fill="#fc9272"/>
+    <rect x="560" width="40" height="500" fill="#fb6a4a"/><rect x="600" width="40" height="500" fill="#ef3b2c"/>
+    <rect x="640" width="40" height="500" fill="#fb6a4a"/><rect x="680" width="40" height="500" fill="#cb181d"/>
+    <rect x="720" width="40" height="500" fill="#a50f15"/><rect x="760" width="40" height="500" fill="#67000d"/>
+  </g>
+  <!-- thermometer -->
+  <g transform="translate(400 250)">
+    <circle r="118" fill="#ffffff" opacity="0.92"/>
+    <rect x="-17" y="-80" width="34" height="118" rx="17" fill="#fff" stroke="#3c434a" stroke-width="7"/>
+    <circle cy="52" r="32" fill="#d7301f" stroke="#3c434a" stroke-width="7"/>
+    <rect x="-7" y="-30" width="14" height="80" rx="7" fill="#d7301f"/>
+    <g stroke="#3c434a" stroke-width="5" stroke-linecap="round">
+      <line x1="22" y1="-55" x2="38" y2="-55"/><line x1="22" y1="-30" x2="34" y2="-30"/><line x1="22" y1="-5" x2="38" y2="-5"/>
+    </g>
+    <path d="M-62 -48 l0 -32 m-12 12 l12 -12 l12 12" fill="none" stroke="#d7301f" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

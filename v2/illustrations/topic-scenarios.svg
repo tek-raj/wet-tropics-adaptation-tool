@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice">
+  <!-- Schematic only: shows how scenarios diverge after today; not data -->
+  <rect width="800" height="500" fill="#ffffff"/>
+  <g stroke="#e3e8e6" stroke-width="2">
+    <line x1="90" y1="100" x2="740" y2="100"/><line x1="90" y1="180" x2="740" y2="180"/>
+    <line x1="90" y1="260" x2="740" y2="260"/><line x1="90" y1="340" x2="740" y2="340"/>
+  </g>
+  <line x1="90" y1="420" x2="740" y2="420" stroke="#9aa8a1" stroke-width="3"/>
+  <line x1="90" y1="60" x2="90" y2="420" stroke="#9aa8a1" stroke-width="3"/>
+  <line x1="400" y1="60" x2="400" y2="420" stroke="#9aa8a1" stroke-width="2" stroke-dasharray="8 8"/>
+  <!-- history -->
+  <path d="M90 395 L130 392 L160 398 L200 388 L240 384 L270 380 L300 366 L330 360 L360 342 L400 330" fill="none" stroke="#3c434a" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <!-- futures -->
+  <g fill="none" stroke-width="6" stroke-linecap="round">
+    <path d="M400 330 C480 300 560 300 740 312" stroke="#4a90c2"/>
+    <path d="M400 330 C480 290 580 270 740 262" stroke="#4fae8a"/>
+    <path d="M400 330 C480 280 600 220 740 200" stroke="#e6b030"/>
+    <path d="M400 330 C480 270 600 170 740 135" stroke="#ec7a32"/>
+    <path d="M400 330 C480 260 600 130 740 85" stroke="#d13b37"/>
+  </g>
+  <g font-family="Open Sans, Segoe UI, Arial, sans-serif" font-size="24" fill="#5a636b" font-weight="600">
+    <text x="245" y="458" text-anchor="middle">Past</text>
+    <text x="400" y="458" text-anchor="middle">Today</text>
+    <text x="600" y="458" text-anchor="middle">Possible futures</text>
+  </g>
+</svg>

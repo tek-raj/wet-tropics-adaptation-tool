@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice">
+  <rect width="800" height="500" fill="#f4f7f5"/>
+  <g style="mix-blend-mode:multiply">
+    <circle cx="320" cy="200" r="135" fill="#f2b45c" opacity="0.75"/>
+    <circle cx="480" cy="200" r="135" fill="#7fb3d6" opacity="0.75"/>
+    <circle cx="400" cy="330" r="135" fill="#b892cc" opacity="0.75"/>
+  </g>
+  <circle cx="400" cy="245" r="40" fill="#b3261e"/>
+  <g font-family="Open Sans, Segoe UI, Arial, sans-serif" font-weight="700" text-anchor="middle">
+    <text x="275" y="160" font-size="30" fill="#6b3d00">Hazard</text>
+    <text x="525" y="160" font-size="30" fill="#163f5f">Exposure</text>
+    <text x="400" y="420" font-size="30" fill="#4a2a5c">Vulnerability</text>
+    <text x="400" y="254" font-size="24" fill="#fff">Risk</text>
+  </g>
+</svg>
