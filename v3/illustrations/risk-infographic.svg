@@ -1,0 +1,175 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 870" font-family="Open Sans, Segoe UI, Arial, sans-serif">
+  <title>Understanding climate risk for species</title>
+  <desc>Climate risk comes from three things together: the hazard, exposure to it, and vulnerability. Vulnerability combines sensitivity and a lack of adaptive capacity. Adaptation reduces risk by reducing exposure, reducing sensitivity or building adaptive capacity. Based on the IPCC Sixth Assessment Report risk framework.</desc>
+  <rect width="1200" height="870" fill="#f2f6f6"/>
+
+  <!-- title band -->
+  <rect width="1200" height="92" fill="#0f3a46"/>
+  <text x="600" y="50" text-anchor="middle" font-size="32" font-weight="700" fill="#fff">Understanding climate risk for species</text>
+  <text x="600" y="78" text-anchor="middle" font-size="16" fill="#cfe6ea">Risk comes from three things together: the hazard, exposure to it, and vulnerability</text>
+
+  <!-- ============ HAZARD ============ -->
+  <g>
+    <rect x="30" y="112" width="360" height="450" rx="14" fill="#fff" stroke="#e2d2bb"/>
+    <path d="M30 126 a14 14 0 0 1 14 -14 h332 a14 14 0 0 1 14 14 v56 h-360 z" fill="#c7822b"/>
+    <text x="210" y="156" text-anchor="middle" font-size="26" font-weight="700" fill="#fff" letter-spacing="1">HAZARD</text>
+    <text x="50" y="218" font-size="17" fill="#3c434a">A climate event or trend that</text>
+    <text x="50" y="240" font-size="17" fill="#3c434a">could cause harm.</text>
+    <!-- hazard icons -->
+    <g fill="none" stroke="#8a5317" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="72" cy="296" r="26" fill="#fbeedd" stroke="none"/>
+      <g transform="translate(51.6 275.6) scale(1.7)"><circle cx="12" cy="9" r="3.5"/><path d="M12 2v1.5M5.5 9H4M20 9h-1.5M3 16.5c1.5-1.2 3-1.2 4.5 0s3 1.2 4.5 0 3-1.2 4.5 0 3 1.2 4.5 0M3 20.5c1.5-1.2 3-1.2 4.5 0s3 1.2 4.5 0 3-1.2 4.5 0 3 1.2 4.5 0"/></g>
+      <circle cx="141" cy="296" r="26" fill="#fbeedd" stroke="none"/>
+      <g transform="translate(120.6 275.6) scale(1.7)"><circle cx="12" cy="12" r="2.6"/><path d="M15 4.6C10.3 3 5.2 5.8 4.6 11M9 19.4c4.7 1.6 9.8-1.2 10.4-6.4M4.6 11c0 3 2.6 5.6 6 5.6M19.4 13c0-3-2.6-5.6-6-5.6"/></g>
+      <circle cx="210" cy="296" r="26" fill="#fbeedd" stroke="none"/>
+      <g transform="translate(189.6 275.6) scale(1.7)"><circle cx="16.5" cy="6.5" r="3"/><path d="M2.5 14.5h19M4 14.5l2 3-1.5 3M11 14.5l-1.5 2.5 2 2-1 2M17.5 14.5l1.5 2.5-2 3.5"/></g>
+      <circle cx="279" cy="296" r="26" fill="#fbeedd" stroke="none"/>
+      <g transform="translate(258.6 275.6) scale(1.7)"><path d="M12 2.8c.9 3 5.2 5.3 5.2 10.2a5.2 5.2 0 0 1-10.4 0c0-2.6 1.4-4.3 2.6-5.3.4 2 1.4 3.1 2.6 3.2-.2-3.1-1.1-5.2 0-8.1z"/></g>
+      <circle cx="348" cy="296" r="26" fill="#fbeedd" stroke="none"/>
+      <g transform="translate(327.6 275.6) scale(1.7)"><path d="M2.5 17c1.6-1.2 3.2-1.2 4.8 0s3.2 1.2 4.8 0 3.2-1.2 4.8 0 3.2 1.2 4.8 0M2.5 21c1.6-1.2 3.2-1.2 4.8 0s3.2 1.2 4.8 0 3.2-1.2 4.8 0 3.2 1.2 4.8 0M12 13V3M8.5 6.5L12 3l3.5 3.5"/></g>
+    </g>
+    <g font-size="12" fill="#6b4a1f" text-anchor="middle">
+      <text x="72" y="338">Heat</text><text x="141" y="338">Cyclone</text><text x="210" y="338">Drought</text><text x="279" y="338">Fire</text><text x="348" y="338">Sea level</text>
+    </g>
+    <text x="50" y="384" font-size="16" font-weight="700" fill="#8a5317">Examples</text>
+    <g font-size="15" fill="#3c434a">
+      <text x="50" y="410">• More frequent, intense heatwaves</text>
+      <text x="50" y="436">• More intense tropical cyclones</text>
+      <text x="50" y="462">• Longer droughts in some regions</text>
+      <text x="50" y="488">• Rising seas and higher storm surges</text>
+    </g>
+    <text x="50" y="536" font-size="13.5" font-style="italic" fill="#6a737b">Reduced mainly by cutting global emissions.</text>
+  </g>
+
+  <!-- ============ EXPOSURE ============ -->
+  <g>
+    <rect x="420" y="112" width="360" height="450" rx="14" fill="#fff" stroke="#c9dceb"/>
+    <path d="M420 126 a14 14 0 0 1 14 -14 h332 a14 14 0 0 1 14 14 v56 h-360 z" fill="#3a7ca5"/>
+    <text x="600" y="156" text-anchor="middle" font-size="26" font-weight="700" fill="#fff" letter-spacing="1">EXPOSURE</text>
+    <text x="440" y="218" font-size="17" fill="#3c434a">Is the species or its habitat in a</text>
+    <text x="440" y="240" font-size="17" fill="#3c434a">place where the hazard occurs?</text>
+    <!-- little scene: habitat under a hot sun, with a location pin -->
+    <clipPath id="scene"><rect x="440" y="258" width="320" height="96" rx="10"/></clipPath>
+    <g clip-path="url(#scene)">
+      <rect x="440" y="258" width="320" height="96" fill="#dcebf5"/>
+      <circle cx="712" cy="282" r="15" fill="#f2b45c"/>
+      <path d="M440 330 C500 300 560 318 620 304 C680 292 720 312 760 300 L760 354 L440 354 Z" fill="#8cbf8a"/>
+      <path d="M440 342 C520 326 600 340 680 328 C720 322 745 328 760 326 L760 354 L440 354 Z" fill="#5f9e63"/>
+      <g fill="#2f6b3a">
+        <path d="M500 330 l2 -22 c-10 -3 -12 -14 -3 -19 c-2 -9 10 -14 16 -8 c6 -7 18 -2 16 7 c9 2 9 15 -1 18 c-5 3 -12 2 -16 -1 l-2 25 z"/>
+        <path d="M640 318 l2 -18 c-8 -3 -10 -11 -3 -15 c-2 -8 8 -11 13 -6 c5 -6 15 -2 13 6 c8 2 7 12 -1 14 c-4 3 -10 2 -13 -1 l-2 20 z"/>
+      </g>
+    </g>
+    <path d="M590 340 c-14 -18 -22 -28 -22 -40 a22 22 0 0 1 44 0 c0 12 -8 22 -22 40 z" fill="#b3261e" stroke="#fff" stroke-width="2.5"/>
+    <circle cx="590" cy="300" r="8" fill="#fff"/>
+    <text x="440" y="384" font-size="16" font-weight="700" fill="#24527a">Examples</text>
+    <g font-size="15" fill="#3c434a">
+      <text x="440" y="410">• A roost in a hot, exposed urban park</text>
+      <text x="440" y="436">• A nesting beach below the storm tide</text>
+      <text x="440" y="462">• Habitat in a fire-prone landscape</text>
+      <text x="440" y="488">• An island only metres above the sea</text>
+    </g>
+    <text x="440" y="536" font-size="13.5" font-style="italic" fill="#6a737b">Check now and in future using hazard maps.</text>
+  </g>
+
+  <!-- ============ VULNERABILITY ============ -->
+  <g>
+    <rect x="810" y="112" width="360" height="450" rx="14" fill="#fff" stroke="#ddcbe6"/>
+    <path d="M810 126 a14 14 0 0 1 14 -14 h332 a14 14 0 0 1 14 14 v56 h-360 z" fill="#8e5aa8"/>
+    <text x="990" y="156" text-anchor="middle" font-size="26" font-weight="700" fill="#fff" letter-spacing="1">VULNERABILITY</text>
+    <text x="830" y="218" font-size="17" fill="#3c434a">How easily the species is harmed.</text>
+    <text x="830" y="240" font-size="15" fill="#6a737b">High sensitivity + low adaptive capacity</text>
+    <text x="830" y="258" font-size="15" fill="#6a737b">= high vulnerability</text>
+    <!-- sensitivity -->
+    <rect x="826" y="274" width="328" height="128" rx="10" fill="#f6eff9"/>
+    <g fill="none" stroke="#8e5aa8" stroke-width="1.6" stroke-linecap="round" transform="translate(838 284) scale(1.15)">
+      <path d="M10 13.5V5a2 2 0 1 1 4 0v8.5a4 4 0 1 1-4 0z"/><path d="M12 9v6.5"/>
+    </g>
+    <text x="872" y="303" font-size="16" font-weight="700" fill="#5f3a73">SENSITIVITY</text>
+    <text x="872" y="321" font-size="13.5" fill="#5f3a73">How strongly it is affected</text>
+    <g font-size="15" fill="#3c434a">
+      <text x="842" y="346">• Narrow temperature limits</text>
+      <text x="842" y="368">• Specialised diet or habitat</text>
+      <text x="842" y="390">• Slow breeding, small population</text>
+    </g>
+    <!-- adaptive capacity -->
+    <rect x="826" y="414" width="328" height="132" rx="10" fill="#e8f4ea"/>
+    <g fill="none" stroke="#1e7b34" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" transform="translate(838 424) scale(1.15)">
+      <path d="M4 18c4 0 5-3 7-6s3-6 9-6"/><path d="M16 3l4 3-4 3"/><path d="M4 18h3"/>
+    </g>
+    <text x="872" y="443" font-size="16" font-weight="700" fill="#1e5a2c">ADAPTIVE CAPACITY</text>
+    <text x="872" y="461" font-size="13.5" fill="#1e5a2c">Its ability to cope and adjust</text>
+    <g font-size="15" fill="#3c434a">
+      <text x="842" y="486">• Can move to cooler refuges</text>
+      <text x="842" y="508">• Can switch food or behaviour</text>
+      <text x="842" y="530">• Genetic diversity, quick recovery</text>
+    </g>
+  </g>
+
+  <!-- ============ RISK (propeller) ============ -->
+  <g>
+    <rect x="30" y="582" width="450" height="226" rx="14" fill="#fff" stroke="#dfe5e3"/>
+    <text x="52" y="618" font-size="20" font-weight="700" fill="#b3261e">CLIMATE RISK</text>
+    <g font-size="15" fill="#3c434a">
+      <text x="52" y="648">Risk arises where</text>
+      <text x="52" y="670">hazard, exposure and</text>
+      <text x="52" y="692">vulnerability overlap.</text>
+    </g>
+    <g font-size="15" fill="#3c434a" font-weight="700">
+      <text x="52" y="730">Reduce any one,</text>
+      <text x="52" y="752">and the risk falls.</text>
+    </g>
+    <!-- the three "blades" meet in the middle: that overlap is the risk -->
+    <g transform="translate(355 708)">
+      <ellipse cx="0" cy="-40" rx="30" ry="50" fill="#c7822b" opacity="0.9"/>
+      <ellipse cx="0" cy="-40" rx="30" ry="50" fill="#3a7ca5" opacity="0.9" transform="rotate(120)"/>
+      <ellipse cx="0" cy="-40" rx="30" ry="50" fill="#8e5aa8" opacity="0.9" transform="rotate(240)"/>
+      <circle r="24" fill="#b3261e" stroke="#fff" stroke-width="3"/>
+      <text y="5" text-anchor="middle" font-size="12.5" font-weight="700" fill="#fff">RISK</text>
+      <g font-size="14" font-weight="700" text-anchor="middle">
+        <text x="0" y="-96" fill="#8a5317">Hazard</text>
+        <text x="84" y="72" fill="#24527a">Exposure</text>
+        <text x="-84" y="72" fill="#5f3a73">Vulnerability</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- ============ HOW ADAPTATION REDUCES RISK ============ -->
+  <g>
+    <rect x="510" y="582" width="660" height="226" rx="14" fill="#fff" stroke="#dfe5e3"/>
+    <text x="532" y="618" font-size="20" font-weight="700" fill="#0f3a46">How adaptation reduces risk</text>
+    <!-- reduce exposure -->
+    <rect x="532" y="636" width="200" height="154" rx="10" fill="#eef5fa"/>
+    <rect x="532" y="636" width="200" height="6" rx="3" fill="#3a7ca5"/>
+    <text x="546" y="666" font-size="15.5" font-weight="700" fill="#24527a">Reduce exposure</text>
+    <g font-size="14" fill="#3c434a">
+      <text x="546" y="692">Protect and restore cool</text>
+      <text x="546" y="712">refuges; keep nests and</text>
+      <text x="546" y="732">roosts out of the worst</text>
+      <text x="546" y="752">heat, flood and fire.</text>
+    </g>
+    <!-- reduce sensitivity -->
+    <rect x="750" y="636" width="200" height="154" rx="10" fill="#f6eff9"/>
+    <rect x="750" y="636" width="200" height="6" rx="3" fill="#8e5aa8"/>
+    <text x="764" y="666" font-size="15.5" font-weight="700" fill="#5f3a73">Reduce sensitivity</text>
+    <g font-size="14" fill="#3c434a">
+      <text x="764" y="692">Reduce other threats</text>
+      <text x="764" y="712">(weeds, predators,</text>
+      <text x="764" y="732">clearing) so populations</text>
+      <text x="764" y="752">are larger and healthier.</text>
+    </g>
+    <!-- build adaptive capacity -->
+    <rect x="968" y="636" width="188" height="154" rx="10" fill="#e8f4ea"/>
+    <rect x="968" y="636" width="188" height="6" rx="3" fill="#1e7b34"/>
+    <text x="980" y="666" font-size="15.5" font-weight="700" fill="#1e5a2c">Build adaptive</text>
+    <text x="980" y="686" font-size="15.5" font-weight="700" fill="#1e5a2c">capacity</text>
+    <g font-size="14" fill="#3c434a">
+      <text x="980" y="712">Reconnect habitat;</text>
+      <text x="980" y="732">protect genetic diversity</text>
+      <text x="980" y="752">(e.g. seed banks, wild</text>
+      <text x="980" y="772">populations).</text>
+    </g>
+  </g>
+
+  <text x="600" y="846" text-anchor="middle" font-size="13.5" fill="#6a737b">Based on the IPCC Sixth Assessment Report risk framework (Working Group II). Illustration for this tool.</text>
+</svg>

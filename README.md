@@ -15,7 +15,10 @@ Version 2 adds:
 - site photos in the reports
 - an experimental Pathway builder
 
-Version 1 is kept unchanged in `app/`; version 2 lives in `v2/`. Each version keeps its own saved plan in the browser.
+**Version 3 (draft, adds merging):** https://tek-raj.github.io/wet-tropics-adaptation-tool/v3/
+Version 3 is version 2 plus **Merge plan files**: combine plan files saved by different people, then review where they gave different answers.
+
+Version 1 is kept unchanged in `app/`; version 2 lives in `v2/`; version 3 lives in `v3/`. Each version keeps its own saved plan in the browser.
 
 ## For reviewers
 

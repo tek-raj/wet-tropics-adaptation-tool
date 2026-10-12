@@ -228,3 +228,38 @@
   - In reports, the map is drawn with fonts ×1.35, so printed text is about 9 pt or more. It is paginated by action (an action is kept with its branches), and each page is labelled 'Adaptation pathways map (n of N)'.
   - After the map pages comes an 'Adaptation pathways: points and triggers' table that groups rows under each action (name shown once, bold) with branches in italics.
   - The sample is `samples/Sample report - pathways map v2` (.pdf/.docx).
+
+## 2026-10-09: Version 2 published as a separate tool
+
+- **Version 1** (unchanged): `app/`, https://tek-raj.github.io/wet-tropics-adaptation-tool/ (the root redirects to app/).
+- **Version 2** (draft): `v2/`, https://tek-raj.github.io/wet-tropics-adaptation-tool/v2/
+  - It includes all work since 6 October.
+  - Its storage keys are `wt-adaptation-plan-v2` and `wt-adaptation-tab-v2`, so V1 and V2 plans don't mix.
+  - The header subtitle reads 'Version 2 (draft)'.
+- **Local only (gitignored):** `Images_to_use/` (including the borrowed NPCP infographic PDF) and `samples/`.
+- **From now on**, develop in `v2/`. `app/` is frozen as V1.
+
+## 2026-10-12: Colleague feedback on V2 (local, not yet published)
+
+- **Regional/LGA scale.** These changes stop the tool assuming a single site:
+  - New 'Scale of assessment' question at the top of the Site tab (Site / Property / LGA / Region or catchment / Other).
+  - Tab renamed 'Site / area', with the heading 'Site or area details' (also used in the reports).
+  - Labels changed to 'Property or area name' and 'Landholder or area contact'; place name, GPS and environment guidance now cover larger areas.
+  - New Plan focus option: 'Region or Local Government Area (LGA)'.
+  - Overview band, data heading and step 2 wording reworded for site, property, LGA or region.
+- **Sightings.** The More information link now goes to the Atlas of Living Australia (it was WildNet). The guidance names the ALA and mentions WildNet as a Qld database with more location data. GBIF was not added, at the user's request.
+- **Collaboration question.** Options were offered: (1) merge plan files with conflict review (recommended, small effort, no online storage), (2) workshop mode or Track Changes, (3) real-time co-editing (needs a backend, logins and agreement on online data storage). The user has not chosen yet.
+
+## 2026-10-12: Version 3 with Merge plan files (local only, not published)
+
+- `v3/` is a copy of the latest V2 (including the LGA and ALA fixes) plus `js/merge.js`. It has its own storage keys (`wt-adaptation-plan-v3`) and the label 'Version 3 (draft)'.
+- **Merge plan files** (header button and a 'Working together' card on the Start tab): pick one or more .adaptplan.json files to merge into the open plan.
+  - Empty boxes are filled automatically.
+  - Actions are matched by wording; new ones are added and their scores, pathways and pathway-map lines are carried across.
+  - Hazards are matched by name, and site photos are de-duplicated.
+  - 'Prepared by' names are combined.
+  - Text that is already included is skipped.
+  - Differences go to a review screen with Keep mine / Use theirs / Keep both (text, marked '[From name]') / Average (scores, rounded), plus apply-to-all buttons. Cancel is available.
+  - A result summary is shown, with Undo merge.
+- **Tested** with Alice (worked example) and Ed: different habitat text, a different heatwave priority and a different score, plus a new action, pathway and photo. Re-merging the same file adds nothing, and Undo restores the plan exactly.
+- Sample files: `samples/Merge test - Alice.adaptplan.json` and `Merge test - Ed.adaptplan.json`.
