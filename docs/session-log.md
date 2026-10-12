@@ -263,3 +263,7 @@
   - A result summary is shown, with Undo merge.
 - **Tested** with Alice (worked example) and Ed: different habitat text, a different heatwave priority and a different score, plus a new action, pathway and photo. Re-merging the same file adds nothing, and Undo restores the plan exactly.
 - Sample files: `samples/Merge test - Alice.adaptplan.json` and `Merge test - Ed.adaptplan.json`.
+
+- 2026-10-12: **V3 published** at https://tek-raj.github.io/wet-tropics-adaptation-tool/v3/ (commit 0d9ed3e). The full merge test passed on the live site, and V1 and V2 were confirmed unchanged live. The local V2 edits (LGA wording, ALA link) are still unpublished.
+
+- 2026-10-12: V3 (local) gets 'CoastAdapt – sea level rise and coastal climate information' added to the National card under 'Where to get climate data' on the Overview (coastadapt.com.au sea level rise page, HTTP 200). Not yet published.

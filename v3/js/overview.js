@@ -76,7 +76,8 @@ window.OVERVIEW = {
       { title: "National", text: "Australia-wide projections and hazard information.", links: [
         ["Climate Change in Australia", "https://www.climatechangeinaustralia.gov.au/en/"],
         ["Australian Climate Service – National Hazards Viewer and NCRA reports", "https://www.acs.gov.au/pages/data-explorer"],
-        ["MyClimateView (for farm businesses)", "https://myclimateview.com.au/"] ] },
+        ["MyClimateView (for farm businesses)", "https://myclimateview.com.au/"],
+        ["CoastAdapt – sea level rise and coastal climate information", "https://coastadapt.com.au/resource-centre/tools/sea-level-rise-and-future-climate-information-for-coastal-councils/"] ] },
       { title: "States and territories", text: "Regional (downscaled) projections at 4–5 km resolution.", links: [
         ["Queensland – Future Climate Dashboard", "https://longpaddock.qld.gov.au/qld-future-climate/dashboard/"],
         ["NSW and ACT – NARCliM (AdaptNSW)", "https://www.climatechange.environment.nsw.gov.au/narclim/narclim-products-and-data"],
