@@ -16,7 +16,7 @@
     const sp = plan.species, st = plan.site;
     const status = [];
     if (sp.epbc) status.push("Federal (EPBC): " + sp.epbc);
-    if (sp.qld) status.push("Queensland: " + sp.qld);
+    if (sp.qld) status.push((sp.state || "State or territory") + ": " + sp.qld);   // field id "qld" kept so older plan files still load
 
     const fieldLabel = (sec, id) => C[sec].fields.find(f => f.id === id).label;
     const speciesRows = [
@@ -36,20 +36,22 @@
     const actionRow = a => {
       const sc = M.scoreOf(a.id);
       return { num: a.num, text: s(a.text), how: s(a.how),
-        score: sc.excluded ? "Not culturally acceptable" : sc.n ? sc.total + (sc.complete ? "" : " (incomplete)") : "" };
+        score: sc.n ? sc.total + (sc.complete ? "" : " (incomplete)") + (sc.unknown ? "; " + sc.unknown + " unknown" : "") : "" };
     };
     const existing = acts.filter(a => a.type === "existing").map(actionRow);
     const potential = acts.filter(a => a.type === "potential").map(actionRow);
 
     const scoring = M.namedActions().map(a => {
       const sc = plan.scores[a.id] || {}, t = M.scoreOf(a.id);
-      return { num: a.num, text: s(a.text), cultural: s(sc.cultural),
-        values: C.scoring.criteria.map(c => t.cultural === "Y" ? s(sc[c.id]) : ""),
-        total: t.excluded ? "Excluded" : t.n ? String(t.total) + (t.complete ? "" : "*") : "" };
+      const code = sc.cultural === "D" ? "U" : s(sc.cultural);   // older drafts: "to be discussed" is now "unknown"
+      const CUL = Object.fromEntries((C.scoring.cultural.options || []).map(o => [o[0], o[1]]));
+      return { num: a.num, text: s(a.text), cultural: CUL[code] || "", culturalCode: code,
+        values: C.scoring.criteria.map(c => s(sc[c.id])),
+        total: t.n ? String(t.total) + (t.complete ? "" : "*") : "", unknown: t.unknown };
     });
 
     const pathway = plan.pathway.map(p => ({
-      action: M.pathwayActionName(p), timing: s(p.timing), shortGoal: s(p.shortGoal), longGoal: s(p.longGoal),
+      action: M.pathwayActionName(p), timing: s(p.timing), preconditions: s(p.preconditions), shortGoal: s(p.shortGoal), longGoal: s(p.longGoal),
       trigger: s(p.trigger), turning: s(p.turning), improved: s(p.improved), stopping: s(p.stopping)
     })).filter(p => Object.values(p).some(Boolean));
 
@@ -73,13 +75,18 @@
   }
 
   const RISK_HEAD = () => C.risk.columns.map(c => c.label);
-  const PATH_HEAD = ["Action", "When", "Short term goal", "Long term goal",
+  const PATH_KEYS = ["action", "timing", "preconditions", "shortGoal", "longGoal", "trigger", "turning", "improved", "stopping"];
+  const PATH_HEAD = ["Action", "When", "Pre-conditions (what must be in place first)", "Short term goal", "Long term goal",
     "Trigger (what to look for to know to start action, or ‘action already started’)",
     "Turning point (what to look for to know when to improve or add additional action)",
     "Improved / additional action", "Stopping point (what to look for to know when to stop this action)"];
-  const SCORE_HEAD = () => ["#", "Action", "Culturally acceptable (Y/N)"]
-    .concat(C.scoring.criteria.map(c => c.label + "\n0–3"), ["Score out of 21"]);
-  const SCORING_NOTE = "Note: scoring is indicative only — discuss which actions are likely to be most effective, practical and appropriate. Culturally acceptable is a filter: only actions marked Y are scored. Each criterion scored 0–3 (3 = most favourable, i.e. lowest cost and lowest risk of negative consequences). Cell colours: green = 3 (good), yellow = 2 (OK), orange = 1 (poor), red = 0 (bad).";
+  const SCORE_HEAD = () => ["#", "Action"]
+    .concat(C.scoring.criteria.map(c => c.label + "\n0\u20133"), ["Score out of 21", "Cultural acceptability (not scored)"]);
+  const CULT_FILL = { Y: "D9F0D3", C: "FFF3C4", N: "F8C4C0", U: "E6E9EB" };   // same colours as the score faces
+  // climate risk band colours for the pathway points table (hex without #)
+  const riskBand = label => { const b = ((C.pathway.risk || {}).bands || []).find(x => x.label === label);
+    return b ? { fill: b.color.replace("#", "").toUpperCase(), text: b.text.replace("#", "").toUpperCase() } : {}; };
+  const SCORING_NOTE = "Note: scoring is indicative only \u2014 discuss which actions are likely to be most effective, practical and appropriate. Each criterion is scored 3 = good, 2 = OK, 1 = bad, 0 = unknown or limited information (for Cost and Risk, 3 = lowest cost and lowest risk). Unknowns add nothing to the total and show where more information is needed. Cell colours: green = 3, yellow = 2, red = 1, grey = 0 (unknown). Cultural acceptability (acceptable, may raise concerns, not acceptable, or unknown) is not part of the score but should be weighed in the decision.";
 
   /* ================= WORD (.docx) ================= */
   async function exportDocx(plan, base) {
@@ -170,48 +177,48 @@
 
     // --- page 4: scoring
     const nCrit = C.scoring.criteria.length;
-    const sw = [450, 3300, 1200].concat(Array(nCrit).fill(1170), [1430]);
+    const sw = [450, 3000].concat(Array(nCrit).fill(1080), [1080, 1700]);
     sw[1] = LANDSCAPE_W - (sw.reduce((a, b) => a + b, 0) - sw[1]);
     const scoreRows = [row(SCORE_HEAD().map((t, i) => hdrCell(t, sw[i])), { header: true })];
     (m.scoring.length ? m.scoring : [{ num: "", text: "", cultural: "", values: Array(nCrit).fill(""), total: "" }]).forEach(r => scoreRows.push(row(
-      [cell(String(r.num), { width: sw[0] }), cell(r.text, { width: sw[1] }),
-       cell(r.cultural, { width: sw[2], align: D.AlignmentType.CENTER, fill: r.cultural === "N" ? "F8C4C0" : undefined })]
-        .concat(r.values.map((v, i) => cell(v, { width: sw[3 + i], align: D.AlignmentType.CENTER, fill: SCORE_FILL[v] })),
-          [cell(r.total, { width: sw[sw.length - 1], bold: true, align: D.AlignmentType.CENTER })]), { minH: 480, cantSplit: true })));
+      [cell(String(r.num), { width: sw[0] }), cell(r.text, { width: sw[1] })]
+        .concat(r.values.map((v, i) => cell(v, { width: sw[2 + i], align: D.AlignmentType.CENTER, fill: SCORE_FILL[v] })),
+          [cell(r.total + (r.unknown ? "\n(" + r.unknown + " unknown)" : ""), { width: sw[2 + nCrit], bold: true, align: D.AlignmentType.CENTER }),
+           cell(r.cultural, { width: sw[3 + nCrit], fill: CULT_FILL[r.culturalCode] })]), { minH: 480, cantSplit: true })));
     const p4 = [h1("Scoring table"), note(SCORING_NOTE), table(sw, scoreRows),
       m.scoring.some(r => r.total.endsWith("*")) ? note("* not all criteria scored.") : null].filter(Boolean);
 
     // --- page 5: pathway
-    const pw = [2270, 900, 1700, 1700, 2000, 2000, 2000, 2000];
+    const pw = [2000, 800, 1800, 1400, 1400, 1800, 1800, 1700, 1870];
     const pathRows = [row(PATH_HEAD.map((t, i) => hdrCell(t, pw[i])), { header: true })];
     const pList = m.pathway.length ? m.pathway : Array(3).fill({});
-    pList.forEach(p => pathRows.push(row(["action", "timing", "shortGoal", "longGoal", "trigger", "turning", "improved", "stopping"]
+    pList.forEach(p => pathRows.push(row(PATH_KEYS
       .map((k, i) => cell(p[k], { width: pw[i], bold: i === 0 })), { minH: 900, cantSplit: true })));
     const p5 = [h1("Pathway planning"), note(C.pathway.intro), table(pw, pathRows)];
 
-    // --- Adaptation pathways map (from the Pathway builder test tab, if used)
+    // --- Adaptation pathways map (from the Pathway planning tab, if any lines were drawn)
     const pbm = window.PathBuilder && window.PathBuilder.exportForReport ? await window.PathBuilder.exportForReport() : null;
     let p5b = null;
     if (pbm) {
-      const mw = [4200, 1900, 1100, LANDSCAPE_W - 7200];
+      const mw = [4000, 1800, 1500, LANDSCAPE_W - 7300];
       const key = () => new D.Paragraph({ spacing: { after: 160 }, children: Object.entries(pbm.colours).map(([label, col]) => [
         new D.TextRun({ text: "\u25cf ", color: col.replace("#", ""), size: 24 }), new D.TextRun({ text: label + "      ", size: 18 })]).flat()
         .concat([new D.TextRun({ text: "\u2026\u2026 waiting (before the trigger)      \u25b6 continues", size: 18, color: "555555" })]) });
       const mapPages = pbm.pages.map((pg, i) => {
-        const k = Math.min(960 / pg.w, 540 / pg.h);
+        const k = Math.min(960 / pg.w, (i === 0 ? 500 : 540) / pg.h);   // first page also has the note
         return [h1("Adaptation pathways map" + (pbm.pages.length > 1 ? " (" + (i + 1) + " of " + pbm.pages.length + ")" : "")),
-          i === 0 ? note("Each action is shown as a line through time. Branches show alternate or improved actions. Positions are as set in the pathway builder.") : null,
+          i === 0 ? note("Each action is shown as a line along increasing climate risk, from low (light) to extreme (dark). Triggers, turning points and stopping points are placed at the level of climate risk at which to act. Branches show alternate or improved actions.") : null,
           new D.Paragraph({ alignment: D.AlignmentType.CENTER, children: [new D.ImageRun({ type: "png", data: dataUrlBytes(pg.png),
             transformation: { width: Math.round(pg.w * k), height: Math.round(pg.h * k) },
             altText: { title: "Adaptation pathways map", description: "Adaptation pathways map", name: "pathways-map-" + (i + 1) } })] }),
           key()].filter(Boolean);
       });
-      const tableRows = [row(["Action or path", "Point", "Year", "What to look for"].map((t, i) => hdrCell(t, mw[i])), { header: true })]
+      const tableRows = [row(["Action or path", "Point", "Climate risk level", "What to look for"].map((t, i) => hdrCell(t, mw[i])), { header: true })]
         .concat(pbm.rows.map((r, i) => {
           const first = !i || pbm.rows[i - 1].path !== r.path;
           return row([cell(first ? r.path : "", { width: mw[0], bold: !r.isBranch, italics: r.isBranch, fill: r.isBranch ? undefined : "F4F7F5" }),
             cell(r.type, { width: mw[1], bold: true, color: (pbm.colours[r.type] || "#333333").replace("#", "") }),
-            cell(r.year, { width: mw[2] }), cell(r.note, { width: mw[3] })], { cantSplit: true });
+            cell(r.risk, { width: mw[2], fill: riskBand(r.risk).fill, color: riskBand(r.risk).text }), cell(r.note, { width: mw[3] })], { cantSplit: true });
         }));
       p5b = mapPages.concat([[h1("Adaptation pathways: points and triggers"), table(mw, tableRows)]]);
     }
@@ -223,11 +230,12 @@
     const boxCell = (id, o) => cell("", Object.assign({ children: boxParas(id) }, o));
     let imgChildren;
     if (m.photo) {
-      const bytes = dataUrlBytes(m.photo.data);
-      const maxW = 190, maxH = 250; // points-ish (px at 96dpi)
-      const k = Math.min(maxW / m.photo.w, maxH / m.photo.h);
+      const ph = await posterPhoto(m.photo);
+      const bytes = dataUrlBytes(ph.data);
+      const maxW = 190, maxH = 254; // px at 96 dpi; the photo box is about 3:4
+      const k = Math.min(maxW / ph.w, maxH / ph.h);
       imgChildren = [new D.Paragraph({ alignment: D.AlignmentType.CENTER, children: [new D.ImageRun({
-        type: "jpg", data: bytes, transformation: { width: Math.round(m.photo.w * k), height: Math.round(m.photo.h * k) },
+        type: "jpg", data: bytes, transformation: { width: Math.round(ph.w * k), height: Math.round(ph.h * k) },
         altText: { title: "Species photo", description: "Photo of " + (m.speciesName || "species"), name: "species-photo" } })] })];
       const cap = [m.photo.caption, m.photo.credit && "Photo: " + m.photo.credit].filter(Boolean).join(" — ");
       if (cap) imgChildren.push(new D.Paragraph({ alignment: D.AlignmentType.CENTER, children: [new D.TextRun({ text: cap, italics: true, size: 16 })] }));
@@ -272,6 +280,29 @@
     });
     const blob = await D.Packer.toBlob(doc);
     window.AppDownload(blob, base + ".docx");
+  }
+
+  // The summary photo cropped to the poster's 3:4 photo box (unless "Show the whole photo" was chosen).
+  // pos (0-100) is where the crop sits along the photo's long side, as set on the Summary tab.
+  const POSTER_RATIO = 3 / 4;
+  function posterPhoto(photo) {
+    return new Promise(resolve => {
+      if (!photo || photo.fit === "whole") return resolve(photo);
+      const img = new Image();
+      img.onload = () => {
+        const w = img.naturalWidth, hgt = img.naturalHeight, ar = w / hgt, pos = (photo.pos === undefined ? 50 : photo.pos) / 100;
+        if (Math.abs(ar - POSTER_RATIO) < 0.02) return resolve({ ...photo, w, h: hgt });
+        let sx = 0, sy = 0, sw = w, sh = hgt;
+        if (ar > POSTER_RATIO) { sw = Math.round(hgt * POSTER_RATIO); sx = Math.round((w - sw) * pos); }
+        else { sh = Math.round(w / POSTER_RATIO); sy = Math.round((hgt - sh) * pos); }
+        const cv = document.createElement("canvas"); cv.width = sw; cv.height = sh;
+        const ctx = cv.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, sw, sh);
+        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+        resolve({ ...photo, data: cv.toDataURL("image/jpeg", 0.9), w: sw, h: sh });
+      };
+      img.onerror = () => resolve(photo);
+      img.src = photo.data;
+    });
   }
 
   function dataUrlBytes(url) {
@@ -339,39 +370,40 @@
     const nCrit = C.scoring.criteria.length;
     const scoreBody = [SCORE_HEAD().map(t => hc(t))];
     (m.scoring.length ? m.scoring : [{ num: "", text: "", cultural: "", values: Array(nCrit).fill(""), total: "" }]).forEach(r => scoreBody.push(
-      [tx(r.num), r.text ? tx(r.text) : empty(1, 2), { text: r.cultural, alignment: "center", fillColor: r.cultural === "N" ? "#F8C4C0" : undefined }]
-        .concat(r.values.map(v => ({ text: v, alignment: "center", fillColor: SCORE_FILL[v] ? "#" + SCORE_FILL[v] : undefined })), [{ text: r.total, bold: true, alignment: "center" }])));
+      [tx(r.num), r.text ? tx(r.text) : empty(1, 2)]
+        .concat(r.values.map(v => ({ text: v, alignment: "center", fillColor: SCORE_FILL[v] ? "#" + SCORE_FILL[v] : undefined })),
+          [{ text: [{ text: r.total, bold: true }, r.unknown ? { text: "\n(" + r.unknown + " unknown)", fontSize: 7.5, color: "#555" } : ""], alignment: "center" },
+           { text: r.cultural, fillColor: CULT_FILL[r.culturalCode] ? "#" + CULT_FILL[r.culturalCode] : undefined }])));
     content.push({ stack: [h1("Scoring table"), note(SCORING_NOTE),
-      { table: { headerRows: 1, widths: [14, "*", 52].concat(Array(nCrit).fill(52), [50]), dontBreakRows: true, body: scoreBody }, layout: lines },
+      { table: { headerRows: 1, widths: [14, "*"].concat(Array(nCrit).fill(50), [52, 78]), dontBreakRows: true, body: scoreBody }, layout: lines },
       m.scoring.some(r => r.total.endsWith("*")) ? note("\n* not all criteria scored.") : ""], pageBreak: "before", pageOrientation: "landscape" });
 
     // pathway
     const pathBody = [PATH_HEAD.map(t => hc(t))];
     (m.pathway.length ? m.pathway : [{}, {}, {}]).forEach(p => pathBody.push(
-      ["action", "timing", "shortGoal", "longGoal", "trigger", "turning", "improved", "stopping"]
-        .map((k, i) => i === 0 ? { text: s(p[k]) || "\n\n\n", bold: true } : tx(p[k]))));
+      PATH_KEYS.map((k, i) => i === 0 ? { text: s(p[k]) || "\n\n\n", bold: true } : tx(p[k]))));
     content.push({ stack: [h1("Pathway planning"), note(C.pathway.intro),
-      { table: { headerRows: 1, widths: ["*", 36, "*", "*", "*", "*", "*", "*"], dontBreakRows: true, body: pathBody }, layout: lines }],
+      { table: { headerRows: 1, widths: ["*", 34, "*", "*", "*", "*", "*", "*", "*"], dontBreakRows: true, body: pathBody }, layout: lines }],
       pageBreak: "before", pageOrientation: "landscape" });
 
-    // adaptation pathways map (from the Pathway builder test tab, if used)
+    // adaptation pathways map (from the Pathway planning tab, if any lines were drawn)
     const pbm = window.PathBuilder && window.PathBuilder.exportForReport ? await window.PathBuilder.exportForReport() : null;
     if (pbm) {
       const keyRow = Object.entries(pbm.colours).map(([label, col]) => [{ text: label, bold: true, color: col, fontSize: 9.5 }, { text: "      " }]).flat()
         .concat([{ text: "Dotted line = waiting for the trigger.   Arrow at the end = continues.", fontSize: 9, color: "#555" }]);
       pbm.pages.forEach((pg, i) => content.push({ stack: [
         h1("Adaptation pathways map" + (pbm.pages.length > 1 ? " (" + (i + 1) + " of " + pbm.pages.length + ")" : "")),
-        i === 0 ? note("Each action is shown as a line through time. Branches show alternate or improved actions. Positions are as set in the pathway builder.") : "",
-        { image: pg.png, fit: [760, 430], alignment: "center", margin: [0, 0, 0, 6] },
+        i === 0 ? note("Each action is shown as a line along increasing climate risk, from low (light) to extreme (dark). Triggers, turning points and stopping points are placed at the level of climate risk at which to act. Branches show alternate or improved actions.") : "",
+        { image: pg.png, fit: [760, i === 0 ? 395 : 430], alignment: "center", margin: [0, 0, 0, 6] },   // first page also has the note
         { text: keyRow }], pageBreak: "before", pageOrientation: "landscape" }));
       content.push({ stack: [h1("Adaptation pathways: points and triggers"),
-        { table: { headerRows: 1, widths: [210, 80, 40, "*"], dontBreakRows: true,
-          body: [["Action or path", "Point", "Year", "What to look for"].map(t => hc(t))]
+        { table: { headerRows: 1, widths: [200, 80, 62, "*"], dontBreakRows: true,
+          body: [["Action or path", "Point", "Climate risk level", "What to look for"].map(t => hc(t))]
             .concat(pbm.rows.map((r, i) => {
               const first = !i || pbm.rows[i - 1].path !== r.path;
               const pathCell = !first ? { text: "", fillColor: r.isBranch ? undefined : "#F4F7F5" }
                 : r.isBranch ? { text: "– " + r.path, italics: true, margin: [8, 0, 0, 0] } : { text: r.path, bold: true, fillColor: "#F4F7F5" };
-              return [pathCell, { text: r.type, bold: true, color: pbm.colours[r.type] || "#333" }, tx(r.year), tx(r.note)];
+              return [pathCell, { text: r.type, bold: true, color: pbm.colours[r.type] || "#333" }, { text: r.risk, fillColor: riskBand(r.risk).fill ? "#" + riskBand(r.risk).fill : undefined, color: riskBand(r.risk).text ? "#" + riskBand(r.risk).text : undefined }, tx(r.note)];
             })) }, layout: lines }],
         pageBreak: "before", pageOrientation: "landscape" });
     }
@@ -380,8 +412,9 @@
     const box = id => ({ stack: [{ text: m.boxLabel(id), bold: true, color: G, fontSize: 10, margin: [0, 0, 0, 3] },
       { text: m.summary[id] || " ", fontSize: 9 }] });
     const minH = n => ({ text: "", margin: [0, 0, 0, n] });
+    const posterPh = m.photo ? await posterPhoto(m.photo) : null;
     const photoCell = m.photo
-      ? { stack: [{ image: m.photo.data, fit: [160, 230], alignment: "center" },
+      ? { stack: [{ image: posterPh.data, fit: [165, 220], alignment: "center" },
           [m.photo.caption, m.photo.credit && "Photo: " + m.photo.credit].filter(Boolean).length
             ? { text: [m.photo.caption, m.photo.credit && "Photo: " + m.photo.credit].filter(Boolean).join(" — "), italics: true, fontSize: 7.5, alignment: "center", margin: [0, 4, 0, 0] } : ""],
           rowSpan: 2, margin: [0, 4, 0, 4] }

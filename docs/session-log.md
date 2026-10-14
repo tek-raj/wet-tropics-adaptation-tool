@@ -267,3 +267,82 @@
 - 2026-10-12: **V3 published** at https://tek-raj.github.io/wet-tropics-adaptation-tool/v3/ (commit 0d9ed3e). The full merge test passed on the live site, and V1 and V2 were confirmed unchanged live. The local V2 edits (LGA wording, ALA link) are still unpublished.
 
 - 2026-10-12: V3 (local) gets 'CoastAdapt – sea level rise and coastal climate information' added to the National card under 'Where to get climate data' on the Overview (coastadapt.com.au sea level rise page, HTTP 200). Not yet published.
+
+## 2026-10-13 — V3: climate-risk pathways, new scoring scale, AdaptLog, pre-conditions (local, not pushed)
+- Pathway builder and Pathway planning map: x-axis is now climate risk (Low → Moderate → High → Very high → Extreme) with a light-to-dark ramp instead of years. Points store `risk` (0–100); maps saved with years are converted automatically. Editor uses a coloured risk slider. Report map notes and the points table use a "Climate risk level" column coloured by band. Bands/colours are in content.js `pathway.risk`.
+- Scoring: 3 = good, 2 = OK, 1 = bad, 0 = unknown / limited information (grey face with a wavy mouth and raised eyebrow). Unknowns add nothing and are counted next to each total (app and reports).
+- Culturally acceptable is no longer a filter. It is now "Cultural considerations" (Supported / To be discussed / Concerns raised) in the last column, not scored; the reports do the same.
+- Actions tab: AdaptLog (CSIRO) box with link https://adapt-log.csiro.au/; also linked from potential-actions help and the "Effective" criterion.
+- Pathway planning: new "Pre-conditions (enabling conditions)" field, which also appears in the reports and the worked example. Overview step texts updated.
+- Example: old 0 scores (which meant "worst") changed to 1; one unknown added (action 4 social) and one "To be discussed" (action 6).
+- Tests: v3 e2e, builder, merge and report renders (PDF and Word) pass.
+## 2026-10-13 (later) — V3 scoring: cultural acceptability wording and wide guidance panel (local, not pushed)
+- The cultural column is now "Cultural acceptability" (to consider, not scored), with the options Acceptable / May raise concerns / Not acceptable / Unknown, coloured green / amber / red / grey like the score faces. The person filling in the form makes the judgement; the help explains each option.
+- Rows marked "Not acceptable" get a red edge and a "Not culturally acceptable" flag under the score. They are flagged, not excluded.
+- The summary draft lists Not acceptable, May raise concerns, and Unknown ("Check with Traditional Owners") actions. The reports use the same labels and colours. Merge review shows labels, not codes. Older "D" (to be discussed) values are read as Unknown.
+- Scoring column ⓘ: guidance now opens in one full-width panel above the table (title and Close button). Only one is open at a time; clicking the same ⓘ again closes it.
+## 2026-10-14 — V3 worked example: summary photo and pathway map (local, not pushed)
+- The worked-example summary poster uses the watercolour of a spectacled flying-fox mother and pup. It is saved as v3/photos/example-flying-fox.jpg (1200 px, 200 KB), which the Overview's case-study card also uses. It is also embedded in js/example-photo.js so the example works when the tool is opened from a file. Caption: "Spectacled flying-fox mother with her pup (illustration)"; credit left blank.
+- The example now has a pathway map: 4 action lines and 5 branches placed on the climate-risk axis, including a "last resort" misting branch at extreme risk. It shows read-only in the worked-example viewer (step 6, via PathBuilder.preview()), in the example Word/PDF downloads (map pages and the points table), and in the tool when the example is loaded.
+- Report fix: the first map page reserves room for the note, so the colour key no longer spills onto an extra page.
+## 2026-10-14 — V3 Start tab: no "More information" line (local, not pushed)
+- On the Start tab's guidance panels (tab overview, Plan title, Plan focus, Purpose, Prepared by, Organisation, Date), the "More information" line is removed; Instructions, Examples and Guidance stay. This includes the Terrain climate link on Plan title.
+- Content rule: moreInfo "" = "link coming soon"; moreInfo null = no link line. Other tabs are unchanged.
+## 2026-10-14 — V3 Species links and "More information" pop-up (local, not pushed)
+- Ecosystem and habitat ⓘ: added TERN EMSA threatened species literature reviews (https://emsa.tern.org.au/threatened-species-resources#Literature-Reviews), alongside the DCCEEW recovery plans link; the guidance text mentions TERN.
+- Species name ⓘ: added links to ALA species search (bie.ala.org.au), WildNet species search (Qld), iNaturalist species search, and EPBC species profiles (SPRAT). The guidance suggests searching them to confirm the common and scientific names.
+- "More information" across the tool: one link opens directly; several show a "More information (n links) ▾" button that opens a pop-up list (link name and website). It closes on Escape or a click elsewhere. This replaces the old inline row of extra links.
+## 2026-10-14 — V3: Strategy for Nature link and state/territory status (local, not pushed)
+- Australia's Strategy for Nature 2024–2030 (NBSAP), https://www.dcceew.gov.au/environment/biodiversity/conservation/strategy: added as the More information link and a guidance line on Species → "Why is it important?" (national target to reduce climate change impacts on biodiversity). Also added on the Overview: a sentence and link in "The adaptation planning process", and a card in Resources.
+- Species tab: new "State or territory" picker (8 jurisdictions). The Queensland status question is now "Conservation status — State or territory (Threatened species list)", with a "Search lists (8) ▾" pop-up and the same 8 links in its ⓘ: ACT, NSW BioNet, NT Classification of wildlife, Qld list, SA, Tas, Vic FFG Threatened List, WA DBCA. The URLs were checked in a browser; Vic and NT show a security check first. The field id stays "qld" so older plan files load. Reports and the example read "<State>: <status>"; the example uses Queensland.
+- Links pop-up flips to the left when it would run off the right edge of the screen.
+## 2026-10-14 — V3 Species/Site "More information" links (local, not pushed)
+- No link line: Species → Existing monitoring of the species; Site → Property or area name, Landholder contact, Existing management plan(s), Existing monitoring at the site, Photo monitoring points, Reason for assessment, People present.
+- Site → Scale, Place name, GPS: link to the interactive climate hazard map (tek-raj.github.io/public/index_long.html).
+- Site → Description of environment: pop-up of 9 vegetation mapping links: NVIS (national), ACTmapi, NSW State Vegetation Type Map, NT NR Maps, Qld Regional ecosystems, SA NatureMaps, Tas TASVEG, Vic NatureKit (EVCs), WA Pre-European vegetation (DPIRD). The guidance names each state's vegetation code type.
+- A question with a single named link now shows "More information: <name> ↗".
+## 2026-10-14 — V3 Risk assessment links and EPBC link (local, not pushed)
+- Species → EPBC status ⓘ: "More information: EPBC species profiles (SPRAT)".
+- Risk assessment: no "More information" line in any ⓘ panel (tab and all four questions). moreInfo: null now hides the line even when extra links are listed; the impact question's unused link list was removed.
+- Exposure question: the Qld-only "Hazard maps" link is now a "Hazard maps (10) ▾" pop-up with national portals (Climate Change in Australia, Australian Climate Service) and each state/territory portal (ACT/NSW NARCliM, NT national data, Qld Future Climate Dashboard, SA viewer, Tas, Vic Future Climate Tool, WA). Same sources as the Overview. "Interactive climate map" is kept.
+- Links pop-ups are now positioned against the window, so cards can't clip them. They open above the link when there is more room there, scroll inside if long, and close on scroll, resize, Escape or a click elsewhere.
+## 2026-10-14 — V3: links made useful for all states and territories (local, not pushed)
+- content.js now defines two shared lists at the top, STATE_RECOVERY_PLANS and STATE_SPECIES_RECORDS (8 jurisdictions each). Recovery plans: ACT action plans, NSW Saving our Species, NT, Qld, SA, Tas Threatened Species Link, Vic FFG Action Statements, WA DBCA. Species records: Canberra Nature Map, NSW BioNet, NT NR Maps, Qld WildNet, SA NatureMaps, Tas Natural Values Atlas, Vic Biodiversity Atlas, WA Dandjoo.
+- Risk → Vulnerability (impact): "Recovery plans (Qld)" is replaced by pop-ups "State and territory recovery plans (8)" and "State and territory species records (8)". Recovery plans (Federal) and ALA are kept. The column `popups` format also drives Hazard maps.
+- Species name ⓘ: ALA, iNaturalist, EPBC + 8 state databases (11). Sightings ⓘ: ALA, iNaturalist + 8 state databases (10). The guidance no longer names WildNet alone.
+- Overview → "What are climate hazards?": the Qld dashboard link is replaced by Climate Change in Australia and the ACS hazards viewer, with a sentence pointing to the state portals.
+- Removed the unused Qld-only keys from C.links (qldSearch, hazardMaps, recoveryPlansQld, speciesRecords).
+- Kept on purpose: the Cairns worked example, the Wet Tropics interactive map (labelled as such), and the Qld entries inside the all-state lists.
+## 2026-10-14 — V3: species records list moved (local, not pushed)
+- Risk → Vulnerability: removed the "State and territory species records" pop-up; only "State and territory recovery plans (8)" remains there.
+- Species → Existing monitoring of the species: its ⓘ now has "More information (8 links)", the state and territory species databases, plus a guidance line.
+## 2026-10-14 — V3 Scoring and Pathway planning help (local, not pushed)
+- Scoring: every "More information" line removed (tab, cultural acceptability, all 7 criteria, including AdaptLog on Effective).
+- Scoring tab ⓘ Examples: totals from the spectacled flying-fox example, plus a "See this step of the worked example ›" button. It opens a pop-over with worked-example step 5, which now also has a full colour-coded scoring table (7 criteria, total, cultural acceptability) in both the pop-over and the Overview viewer.
+- Pathway planning tab ⓘ Examples: three flying-fox pathways (pre-conditions, risk-level triggers and turning points), plus a button that opens worked-example step 6 with the risk-axis map.
+- Pathway planning: empty link lines removed from all 8 fields. The tab ⓘ links to the AdaptNRM "Adaptation Pathways: a playbook…" (RMIT repository) and the CSIRO article "Pathways to prepare for and manage global change".
+- New content option: help.exampleStep: "<step id>" adds the worked-example button to an ⓘ panel.
+## 2026-10-14 — V3 Actions tab: empty link lines removed (local, not pushed)
+- Removed the empty "More information" line from the Actions tab ⓘ, Existing actions, and "How does this help…". Potential actions keeps its AdaptLog link.
+
+## 2026-10-14 — V3 Pathway builder (test tab): pathway map merged with the Pathway planning form (local, not pushed)
+- Clicking a line (or its name) now opens that action's full Pathway planning form below the map: When, Pre-conditions, goals, Trigger, Turning point, Improved/additional action, Stopping point, with the same ⓘ help. It edits the same plan.pathway entry as the Pathway planning tab (matched by action, or by typed name). A new entry is created only once something is typed.
+- A line click no longer drops a point. The form has "+ Trigger / + Turning point / + Stopping point" buttons that add the point at the risk level where the line was clicked. The point editor has "Open the pathway form ›" to go back.
+- Branch (alternate path) lines keep their caption editor and the add-point buttons.
+- New AppAPI.pathwayForm(entry, onChange) builds the shared form. Banner and intro text updated.
+- Still separate: point notes on the map and the Trigger/Turning/Stopping text in the form.
+## 2026-10-14 — V3: Pathway builder is now the Pathway planning tab (local, not pushed)
+- The old Pathway planning tab (card list + schematic map: R.pathway, pathwayMap, pathwayMapCard) is deleted. The builder is now tab 6 "Pathway planning" (tab id "pathway"), with content.js pathway title/intro/ⓘ help. The "(test)" tab and its banner are gone. A saved tab of "pathbuilder" opens Pathway planning.
+- Each line opens the action's pathway form (all 8 fields). Any pathway entry without a line gets one automatically, so older or merged plans keep all their details.
+- Toolbar: "+ Add action line", "+ Add a line for every action (n)", "Draft the map from the pathway details" (rebuilds points from the text, with a confirmation).
+- Deleting an action line also deletes its pathway details (confirmation names both). Changing a line's action or typed name carries the details along.
+- Intro, ⓘ instructions and Overview step text updated. Reports unchanged: pathway table from plan.pathway, map pages from the lines.
+- Tests updated (e2e, builder, form, help, example, report, merge): all pass.
+## 2026-10-14 — V3 summary poster photo fits the portrait photo box (local, not pushed)
+- The poster's photo box is about 3:4 (portrait). By default the photo is cropped to 3:4 when the report is made (export.js posterPhoto), so landscape photos fill the box instead of shrinking to a strip. Word maxW 190 × maxH 254; PDF fit [165, 220].
+- Summary tab: the photo preview is a 3:4 frame matching the poster, with "Fill the photo box (crop)" / "Show the whole photo" and a "Crop position" slider (left↔right for wide photos, top↕bottom for tall ones). Stored as summary.photo.fit and summary.photo.pos; a new upload resets pos to 50.
+- Worked example photo: fit "fill", pos 57 (centred on the mother and pup).
+- Photo ⓘ guidance explains the crop; its empty link line is removed.
+## 2026-10-14 — V3 renamed from "Site Assessment" to a planning tool; V3 pushed
+- Header subtitle: "Planning Tool · Version 3 (draft)" (was "Site Assessment"). Report page header: "Biodiversity Climate Adaptation Plan". Date and People present instructions now say "site visit or planning workshop". A separate site assessment tool will be developed later.
+- Committed and pushed V3 and this log. The V2 changes (LGA wording, ALA link) are still local only.

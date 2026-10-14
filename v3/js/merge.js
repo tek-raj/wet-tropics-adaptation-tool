@@ -18,6 +18,8 @@
   const isEmpty = v => v == null || String(v).trim() === "";
   const clone = o => JSON.parse(JSON.stringify(o));
   const short = (t, n) => { t = String(t || ""); return t.length > n ? t.slice(0, n - 1) + "…" : t; };
+  // show cultural acceptability codes as their labels (older drafts used "D" for to be discussed)
+  const shown = (c, v) => { if (c.key !== "cultural") return String(v); const o = (C().scoring.cultural.options || []).find(x => x[0] === (v === "D" ? "U" : v)); return o ? o[1] : String(v); };
 
   /* ---------- merging one incoming plan into the base plan ---------- */
   function mergeOne(base, inc, source, conflicts, stats) {
@@ -157,8 +159,8 @@
         return h("div", { class: "mg-item" },
           h("div", { class: "mg-where" }, c.where),
           h("div", { class: "mg-cmp" },
-            h("div", { class: "mg-ver" + (choice[i] === "mine" || choice[i] === "both" || choice[i] === "average" ? " on" : "") }, h("span", { class: "mg-who" }, "Yours"), h("div", null, String(c.mine))),
-            h("div", { class: "mg-ver" + (choice[i] === "theirs" || choice[i] === "both" || choice[i] === "average" ? " on" : "") }, h("span", { class: "mg-who" }, c.source), h("div", null, String(c.theirs)))),
+            h("div", { class: "mg-ver" + (choice[i] === "mine" || choice[i] === "both" || choice[i] === "average" ? " on" : "") }, h("span", { class: "mg-who" }, "Yours"), h("div", null, shown(c, c.mine))),
+            h("div", { class: "mg-ver" + (choice[i] === "theirs" || choice[i] === "both" || choice[i] === "average" ? " on" : "") }, h("span", { class: "mg-who" }, c.source), h("div", null, shown(c, c.theirs)))),
           h("div", { class: "mg-opts", role: "radiogroup", "aria-label": "Choose for " + c.where }, opts.map(([v, lab]) => {
             const r = h("input", { type: "radio", name, value: v, onchange: () => { choice[i] = v; paint(); } });
             if (choice[i] === v) r.checked = true;

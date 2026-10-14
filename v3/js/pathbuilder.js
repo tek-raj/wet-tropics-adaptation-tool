@@ -1,16 +1,21 @@
 /*
- * PATHWAY BUILDER (TEST TAB)
- * An interactive adaptation pathways map. Everything for this experiment lives in this file
- * (plus its tab entry in app.js and its styles at the end of style.css), so it can be removed easily.
- * Data is stored in plan.pathwayBuilder = { lines: [...] } and saved with the plan.
+ * PATHWAY PLANNING (tab 6)
+ * An interactive adaptation pathways map. Each root line is an action; clicking it opens that action's
+ * pathway form (plan.pathway entry, same fields as content.js pathway.fields) below the map.
+ * The map is stored in plan.pathwayBuilder = { lines: [...] } and saved with the plan.
  *
  * Line:  { id, actionId?, label?, parentId?, fromPointId?, caption?, start?, points: [...] }
  *        - root lines are actions; child lines are alternate / improved paths that branch from a point
- * Point: { id, year, type: "trigger" | "turning" | "stop", note }
+ * Point: { id, risk, type: "trigger" | "turning" | "stop", note }
+ *        - risk is the position on the climate risk axis, 0 (low) to 100 (extreme); line.start uses the same scale.
+ *          Older plans stored a year (2025-2100); these are converted to the risk scale when the plan is opened.
  */
 (function () {
   "use strict";
-  const YEAR0 = 2025, YEAR1 = 2100, TICKS = [2025, 2045, 2065, 2085, 2100];
+  const R0 = 0, R1 = 100;   // climate risk axis: 0 = low, 100 = extreme
+  const RISK = () => (window.APP_CONTENT.pathway.risk || { axisLabel: "Climate risk", bands: [{ label: "Low", color: "#fff4c2", text: "#333" }] });
+  const bandOf = r => { const b = RISK().bands; return b[Math.min(b.length - 1, Math.max(0, Math.floor(r / (100 / b.length))))]; };
+  const riskLabel = r => bandOf(r).label;
   const X0 = 270, X1 = 960, W = 1000, LANE = 74, TOP = 92;
   const TYPES = {
     trigger: { label: "Trigger", colour: "#2b6cb0", prompt: "What will tell you it is time to start this action?" },
@@ -23,10 +28,19 @@
 
   const A = () => window.AppAPI;
   const h = (...a) => A().h(...a);
-  const store = () => { const p = A().getPlan(); if (!p.pathwayBuilder) p.pathwayBuilder = { lines: [] }; return p.pathwayBuilder; };
+  // convert positions saved as years (earlier drafts) to the 0-100 climate risk scale
+  const fromYear = y => Math.round(Math.min(100, Math.max(0, (y - 2025) / 75 * 100)));
+  function migrate(pb) {
+    (pb.lines || []).forEach(l => {
+      if (typeof l.start === "number" && l.start > 100) l.start = fromYear(l.start);
+      (l.points || []).forEach(q => { if (q.risk === undefined && q.year !== undefined) { q.risk = fromYear(q.year); delete q.year; } });
+    });
+    return pb;
+  }
+  const store = () => { const p = A().getPlan(); if (!p.pathwayBuilder) p.pathwayBuilder = { lines: [] }; return migrate(p.pathwayBuilder); };
   const save = () => A().changed();
-  const xOf = y => X0 + (y - YEAR0) / (YEAR1 - YEAR0) * (X1 - X0);
-  const yearOf = x => Math.round(Math.min(YEAR1, Math.max(YEAR0, YEAR0 + (x - X0) / (X1 - X0) * (YEAR1 - YEAR0))));
+  const xOf = r => X0 + (r - R0) / (R1 - R0) * (X1 - X0);
+  const riskOf = x => Math.round(Math.min(R1, Math.max(R0, R0 + (x - X0) / (X1 - X0) * (R1 - R0))));
   const shortTxt = (t, n) => { t = (t || "").trim(); return t.length > n ? t.slice(0, n - 1) + "…" : t; };
 
   /* ---------- model helpers ---------- */
@@ -34,12 +48,12 @@
   const byId = id => lines().find(l => l.id === id);
   const findPoint = pid => { for (const l of lines()) { const p = (l.points || []).find(q => q.id === pid); if (p) return { line: l, point: p }; } return null; };
   function lineStart(l) {
-    if (l.parentId) { const f = findPoint(l.fromPointId); return f ? f.point.year : YEAR0; }
-    return l.start || YEAR0;
+    if (l.parentId) { const f = findPoint(l.fromPointId); return f ? f.point.risk : R0; }
+    return l.start || R0;
   }
   function lineEnd(l) {
     const s = lineStart(l);
-    const stops = (l.points || []).filter(p => p.type === "stop" && p.year >= s).map(p => p.year);
+    const stops = (l.points || []).filter(p => p.type === "stop" && p.risk >= s).map(p => p.risk);
     return stops.length ? Math.min(...stops) : null;
   }
   function lineName(l) {
@@ -68,20 +82,20 @@
   }
   const uid = () => A().uid();
 
-  /* ---------- import from the Pathway planning tab ---------- */
+  /* ---------- draft the map from the pathway details ---------- */
   function importFromPathways() {
     const P = A().getPlan().pathway || [];
-    if (!P.length) { alert("There are no pathways on the Pathway planning tab yet."); return; }
-    if (lines().length && !confirm("Replace the current map with a draft built from your Pathway planning entries?")) return;
+    if (!P.length) { alert("There are no pathway details yet. Click a line and fill in its pathway first."); return; }
+    if (lines().length && !confirm("Replace the current map with a draft built from the pathway details? Points you have placed will be replaced.")) return;
     store().lines = [];
     P.forEach(p => {
       const later = p.timing === "Later";
-      const l = { id: uid(), actionId: p.actionId || "", label: p.actionText || "", start: YEAR0, points: [] };
-      if (later || (p.trigger || "").trim()) l.points.push({ id: uid(), type: "trigger", year: later ? 2035 : YEAR0, note: p.trigger || "" });
+      const l = { id: uid(), actionId: p.actionId || "", label: p.actionText || "", start: R0, points: [] };
+      if (later || (p.trigger || "").trim()) l.points.push({ id: uid(), type: "trigger", risk: later ? 25 : R0, note: p.trigger || "" });
       let turn = null;
-      if ((p.turning || "").trim() || (p.improved || "").trim()) { turn = { id: uid(), type: "turning", year: 2050, note: p.turning || "" }; l.points.push(turn); }
+      if ((p.turning || "").trim() || (p.improved || "").trim()) { turn = { id: uid(), type: "turning", risk: 50, note: p.turning || "" }; l.points.push(turn); }
       if ((p.stopping || "").trim() && !/^(not expected|none|n\/a|ongoing|continues)/i.test(p.stopping.trim()))
-        l.points.push({ id: uid(), type: "stop", year: 2075, note: p.stopping });
+        l.points.push({ id: uid(), type: "stop", risk: 80, note: p.stopping });
       lines().push(l);
       if (turn && (p.improved || "").trim()) lines().push({ id: uid(), parentId: l.id, fromPointId: turn.id, caption: p.improved, points: [] });
     });
@@ -128,7 +142,7 @@
       const label = l.parentId ? fitText(displayName(l), LABEL_W - depth * 14 - 14, maxL, sz([12.5, 11.5, 10.5, 9.5, 9]))
                                : fitText(displayName(l), LABEL_W - 14, maxL, sz([13.5, 12.5, 11.5, 10.5, 9.5, 9]));
       charK = 0.58;
-      const pts = (l.points || []).slice().sort((a, b) => a.year - b.year).map(p => ({ p, x: xOf(p.year),
+      const pts = (l.points || []).slice().sort((a, b) => a.risk - b.risk).map(p => ({ p, x: xOf(p.risk),
         text: fitText(p.note || (TYPES[p.type] || TYPES.turning).label, NW, 3, sz([11.5, 10.5, 9.5, 9])) }));
       // notes near the edges are aligned away from the edge so they never run into the labels
       pts.forEach(q => {
@@ -170,19 +184,20 @@
     const rows = layout(opts.rows || ordered(), fs);
     const H = Math.max(TOP + 60, (rows.length ? rows[rows.length - 1].bottom : TOP + 40) + 8);
     const svg = h("svg", { viewBox: "0 0 " + W + " " + H, class: "pb-svg", role: "application",
-      "aria-label": "Pathway builder. Click on a line to add a point; drag points along the timeline." });
-    // time bands and axis
-    [["Now", 2025, 2045], ["Near term", 2045, 2065], ["Longer term", 2065, 2100]].forEach(([t, a, b], i) => {
-      svg.append(h("rect", { x: xOf(a), y: 8, width: xOf(b) - xOf(a), height: 22, fill: i % 2 ? "#eef3f0" : "#e4ece7" }),
-        h("text", { x: (xOf(a) + xOf(b)) / 2, y: 24, "text-anchor": "middle", class: "pb-band" }, t));
+      "aria-label": "Pathway map. Click a line or its name to open its pathway form; drag points along the climate risk axis." });
+    // climate risk axis: a light-to-dark gradient, labelled by risk band, with a faint wash behind the whole map
+    const bands = RISK().bands, gid = "pbrisk" + Math.random().toString(36).slice(2, 7);
+    svg.append(h("defs", null, h("linearGradient", { id: gid, x1: "0", x2: "1", y1: "0", y2: "0" },
+      bands.map((b, i) => h("stop", { offset: (i / Math.max(1, bands.length - 1) * 100) + "%", "stop-color": b.color })))));
+    svg.append(h("rect", { x: X0, y: 36, width: X1 - X0, height: H - 42, fill: "url(#" + gid + ")", opacity: 0.16 }),
+      h("rect", { x: X0, y: 8, width: X1 - X0, height: 26, rx: 4, fill: "url(#" + gid + ")" }));
+    const bw = (X1 - X0) / bands.length;
+    bands.forEach((b, i) => {
+      if (i) svg.append(h("line", { x1: X0 + i * bw, y1: 36, x2: X0 + i * bw, y2: H - 6, stroke: "#ffffff", "stroke-width": 1.5, opacity: 0.9 }));
+      svg.append(h("text", { x: X0 + (i + 0.5) * bw, y: 26, "text-anchor": "middle", class: "pb-band", style: "fill:" + (b.text || "#333") }, b.label));
     });
-    svg.append(h("line", { x1: X0, y1: 56, x2: X1, y2: 56, stroke: "#8a9a92", "stroke-width": 2 }));
-    TICKS.forEach(y => {
-      svg.append(h("line", { x1: xOf(y), y1: 50, x2: xOf(y), y2: H - 6, stroke: "#dfe6e2", "stroke-width": 1 }),
-        h("line", { x1: xOf(y), y1: 50, x2: xOf(y), y2: 62, stroke: "#8a9a92", "stroke-width": 2 }),
-        h("text", { x: xOf(y), y: 46, "text-anchor": "middle", class: "pb-tick" }, y === YEAR0 ? "Now (" + y + ")" : String(y)));
-    });
-    svg.append(h("text", { x: 14, y: 46, class: "pb-tick" }, "Action"));
+    svg.append(h("text", { x: 14, y: 26, class: "pb-tick" }, RISK().axisLabel + " →"),
+      h("text", { x: 14, y: 58, class: "pb-tick" }, "Action"));
 
     const laneY = new Map(rows.map(r => [r.l.id, r.y]));
     rows.forEach((r, ri) => {
@@ -198,7 +213,7 @@
         class: "pb-label" + (l.parentId ? " child" : ""), "font-size": label.f },
         label.lines.map((t, k) => h("tspan", { x: lx, dy: k ? lineH : 0 }, (k === 0 && l.parentId ? "↳ " : "") + t)));
       const labHit = h("rect", { x: 4, y: y - label.lines.length * lineH / 2 - 6, width: X0 - 20, height: label.lines.length * lineH + 12, fill: "transparent", class: "pb-hit-label" });
-      [labHit, lab].forEach(n => n.addEventListener("click", () => { selected = { line: l }; refresh(); }));
+      [labHit, lab].forEach(n => n.addEventListener("click", () => { selected = { line: l }; refresh(); showEditor(); }));
       g.append(labHit, lab);
       // branch connector from the parent point
       if (l.parentId && laneY.has(l.parentId)) {
@@ -206,24 +221,21 @@
         g.append(h("path", { d: `M${xs} ${py} C${xs + 30} ${py} ${xs} ${y} ${xs + 30} ${y}`, fill: "none", stroke: c, "stroke-width": 3, opacity: 0.8, "stroke-linecap": "round" }));
       }
       const x0 = l.parentId ? xs + 30 : xs;
-      const trig = (l.points || []).filter(p => p.type === "trigger" && p.year >= s && (e === null || p.year <= e)).sort((a, b) => a.year - b.year)[0];
-      const xt = trig ? Math.max(x0, xOf(trig.year)) : x0;
+      const trig = (l.points || []).filter(p => p.type === "trigger" && p.risk >= s && (e === null || p.risk <= e)).sort((a, b) => a.risk - b.risk)[0];
+      const xt = trig ? Math.max(x0, xOf(trig.risk)) : x0;
       if (trig && xt > x0) g.append(h("line", { x1: x0, y1: y, x2: xt, y2: y, stroke: c, "stroke-width": 2.5, "stroke-dasharray": "2 7", "stroke-linecap": "round", opacity: 0.85 }));
       if (xe > xt) g.append(h("line", { x1: xt, y1: y, x2: xe, y2: y, stroke: c, "stroke-width": l.parentId ? 3 : 3.5, "stroke-linecap": "round", opacity: l.parentId ? 0.85 : 1 }));
       if (e === null) g.append(h("path", { d: `M${X1} ${y - 7} l11 7 l-11 7 z`, fill: c, opacity: l.parentId ? 0.85 : 1 }));
-      // click anywhere along the line to add a point
+      // click anywhere along the line to open its pathway form (the click position is used for "Add a point")
       const hit = h("line", { x1: x0, y1: y, x2: X1, y2: y, stroke: "transparent", "stroke-width": 20, class: "pb-hit" });
-      hit.appendChild(h("title", null, "Click to add a point here"));
+      hit.appendChild(h("title", null, "Click to open this pathway"));
       hit.addEventListener("click", ev => {
-        const yr = Math.max(s, yearOf(toSvgX(svg, ev.clientX)));
-        const list = l.points || (l.points = []);
-        const pt = { id: uid(), type: !list.length ? "trigger" : "turning", year: yr, note: "" };
-        list.push(pt); selected = { line: l, point: pt }; save(); refresh();
+        selected = { line: l, at: Math.max(s, riskOf(toSvgX(svg, ev.clientX))) }; refresh(); showEditor();
       });
       g.append(hit);
       if (!l.parentId) {
         const sh = h("circle", { cx: xs, cy: y, r: 6, fill: "#fff", stroke: c, "stroke-width": 2.5, class: "pb-start", tabindex: 0 });
-        sh.appendChild(h("title", null, "Start: " + s + " (drag to change)"));
+        sh.appendChild(h("title", null, "Start: " + riskLabel(s) + " climate risk (drag to change)"));
         makeDraggable(svg, sh, l, null);
         g.append(sh);
       }
@@ -232,20 +244,20 @@
         const p = q.p, t = TYPES[p.type] || TYPES.turning, px = q.x, f = q.text.f, nh = f + 3;
         const isSel = selected && selected.point === p;
         const pg = h("g", { class: "pb-point" + (isSel ? " sel" : ""), tabindex: 0, role: "button",
-          "aria-label": t.label + ", " + p.year + (p.note ? ": " + p.note : "") + ". Use arrow keys to move." });
-        pg.append(h("title", null, t.label + " (" + p.year + ")" + (p.note ? ": " + p.note : "")));
+          "aria-label": t.label + ", " + riskLabel(p.risk) + " climate risk" + (p.note ? ": " + p.note : "") + ". Use arrow keys to move." });
+        pg.append(h("title", null, t.label + " (" + riskLabel(p.risk) + " climate risk)" + (p.note ? ": " + p.note : "")));
         if (isSel) pg.append(h("circle", { cx: px, cy: y, r: 14, fill: "none", stroke: t.colour, "stroke-width": 2, "stroke-dasharray": "3 3" }));
         pg.append(h("circle", { cx: px, cy: y, r: 8.5, fill: t.colour, stroke: "#fff", "stroke-width": 2.5, class: "pb-dot" }));
         const n = q.text.lines.length;
         const firstY = q.pos === "above" ? y - 16 * fs - (n - 1) * nh : y + 38 * fs;
         pg.append(h("text", { x: q.tx, y: firstY, "text-anchor": q.anchor, class: "pb-note", "font-size": f, "data-dx": q.tx - px },
           q.text.lines.map((tl, k) => h("tspan", { x: q.tx, dy: k ? nh : 0 }, tl))));
-        pg.append(h("text", { x: px, y: y + 23 * fs, "text-anchor": "middle", class: "pb-year", "font-size": 11 * fs }, String(p.year)));
+        pg.append(h("text", { x: px, y: y + 23 * fs, "text-anchor": "middle", class: "pb-year", "font-size": 11 * fs }, riskLabel(p.risk)));
         makeDraggable(svg, pg, l, p);
         pg.addEventListener("keydown", ev => {
           if (ev.key === "ArrowLeft" || ev.key === "ArrowRight") {
             ev.preventDefault();
-            p.year = Math.min(YEAR1, Math.max(lineStart(l), p.year + (ev.key === "ArrowRight" ? 1 : -1)));
+            p.risk = Math.min(R1, Math.max(lineStart(l), p.risk + (ev.key === "ArrowRight" ? 2 : -2)));
             selected = { line: l, point: p }; save(); refresh(true);
           } else if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); selected = { line: l, point: p }; refresh(true); }
           else if (ev.key === "Delete") { removePoint(l, p); selected = null; save(); refresh(); }
@@ -255,7 +267,7 @@
       svg.append(g);
     });
     if (!rows.length) svg.append(h("text", { x: W / 2, y: TOP + 30, "text-anchor": "middle", class: "pb-note" },
-      "No lines yet. Use “+ Add action line” or “Start from my pathway entries”."));
+      "No pathways yet. Use “+ Add action line” to add one for each action you plan to carry forward."));
     return svg;
   }
 
@@ -270,19 +282,19 @@
       ev.preventDefault(); ev.stopPropagation();
       el.setPointerCapture(ev.pointerId);
       const startX = ev.clientX; let moved = false;
-      const min = point ? lineStart(line) : YEAR0;
+      const min = point ? lineStart(line) : R0;
       const move = mv => {
         if (Math.abs(mv.clientX - startX) > 3) moved = true;
         if (!moved) return;
-        const yr = Math.max(min, yearOf(toSvgX(svg, mv.clientX)));
-        if (point) point.year = yr; else line.start = yr;
-        const nx = xOf(yr);
+        const rv = Math.max(min, riskOf(toSvgX(svg, mv.clientX)));
+        if (point) point.risk = rv; else line.start = rv;
+        const nx = xOf(rv);
         el.querySelectorAll ? el.querySelectorAll("circle").forEach(c => c.setAttribute("cx", nx)) : null;
         if (el.tagName === "circle") el.setAttribute("cx", nx);
         el.querySelectorAll && el.querySelectorAll("text").forEach(t => {
           const tx = nx + (parseFloat(t.getAttribute("data-dx")) || 0);
           t.setAttribute("x", tx); t.querySelectorAll("tspan").forEach(ts => ts.setAttribute("x", tx));
-          if (t.classList.contains("pb-year")) t.textContent = yr;
+          if (t.classList.contains("pb-year")) t.textContent = riskLabel(rv);
         });
       };
       const up = () => {
@@ -295,11 +307,38 @@
     });
   }
 
+  /* ---------- link between a map line and its Pathway planning entry ---------- */
+  // Root lines match the pathway for the same action (or the same typed name). If there is none yet,
+  // a new entry is made and only added to the plan once something is typed into it.
+  function pathwayEntry(l) {
+    const plan = A().getPlan(); if (!plan.pathway) plan.pathway = [];
+    const name = (l.label || "").trim();
+    return (l.actionId ? plan.pathway.find(p => p.actionId === l.actionId)
+                       : plan.pathway.find(p => !p.actionId && name && (p.actionText || "").trim() === name))
+      || { id: uid(), actionId: l.actionId || "", actionText: l.actionId ? "" : name };
+  }
+  // "Add a point" buttons: trigger / turning / stop at the level of risk where the line was clicked
+  function addPointRow(l) {
+    const clicked = selected && selected.at !== undefined;
+    const at = t => Math.max(lineStart(l), clicked ? selected.at : { trigger: 25, turning: 50, stop: 80 }[t]);
+    return h("div", { class: "pb-addpoint" },
+      h("span", { class: "field-label" }, clicked ? "Add a point at " + riskLabel(selected.at).toLowerCase() + " climate risk (where you clicked):" : "Add a point (or click on the line first to choose where):"),
+      h("div", { class: "pb-types" }, Object.entries(TYPES).map(([k, v]) =>
+        h("button", { type: "button", class: "pb-type", style: "--c:" + v.colour, onclick: () => {
+          const pt = { id: uid(), type: k, risk: at(k), note: "" };
+          (l.points || (l.points = [])).push(pt); selected = { line: l, point: pt }; save(); refresh();
+          setTimeout(() => { const n = document.getElementById("pb-note"); if (n) n.focus(); }, 0);
+        } }, h("span", { class: "pb-swatch" }), "+ " + v.label))));
+  }
+  function showEditor() {
+    setTimeout(() => { const hd = edHolder && edHolder.querySelector(".pb-ed-head"); if (hd) hd.scrollIntoView({ behavior: "smooth", block: "nearest" }); }, 0);
+  }
+
   /* ---------- editor panel (below the map) ---------- */
   function editor() {
     const box = h("div", { class: "pb-editor" });
     if (!selected || !lines().includes(selected.line)) {
-      box.append(h("p", { class: "note", style: "margin:0" }, "Select a point or a line name to edit it. Click on a line to add a point."));
+      box.append(h("p", { class: "note", style: "margin:0" }, "Click a line or its name to open its pathway form. Click a point to edit it."));
       return box;
     }
     const l = selected.line, p = selected.point;
@@ -307,15 +346,22 @@
       const t = TYPES[p.type] || TYPES.turning;
       const note = h("textarea", { rows: 2, id: "pb-note", oninput: ev => { p.note = ev.target.value; save(); refreshMap(); } });
       note.value = p.note || "";
-      const yearIn = h("input", { type: "number", id: "pb-year", min: lineStart(l), max: YEAR1, step: 1, value: p.year,
-        onchange: ev => { p.year = Math.min(YEAR1, Math.max(lineStart(l), parseInt(ev.target.value, 10) || p.year)); save(); refresh(true); } });
+      const bandOut = h("span", { class: "pb-risk-out" }, riskLabel(p.risk));
+      const riskIn = h("input", { type: "range", id: "pb-risk", class: "pb-risk-range", min: R0, max: R1, step: 1, value: p.risk,
+        "aria-valuetext": riskLabel(p.risk) + " climate risk",
+        style: "--ramp:linear-gradient(90deg," + RISK().bands.map(b => b.color).join(",") + ")",
+        oninput: ev => { p.risk = Math.max(lineStart(l), parseInt(ev.target.value, 10)); ev.target.value = p.risk;
+          bandOut.textContent = riskLabel(p.risk); ev.target.setAttribute("aria-valuetext", riskLabel(p.risk) + " climate risk"); refreshMap(); },
+        onchange: () => { save(); refresh(true); } });
       box.append(
-        h("div", { class: "pb-ed-head" }, h("strong", null, "Point on: "), shortTxt(lineName(l), 70)),
+        h("div", { class: "pb-ed-head" }, h("strong", null, "Point on: "), shortTxt(lineName(l), 70), " ",
+          h("button", { type: "button", class: "link-btn", onclick: () => { selected = { line: l }; refresh(); } }, "Open the pathway form \u203a")),
         h("div", { class: "pb-types", role: "radiogroup", "aria-label": "Point type" }, Object.entries(TYPES).map(([k, v]) =>
           h("button", { type: "button", role: "radio", "aria-checked": String(p.type === k), class: "pb-type" + (p.type === k ? " on" : ""),
             style: "--c:" + v.colour, onclick: () => { p.type = k; save(); refresh(true); } }, h("span", { class: "pb-swatch" }), v.label))),
         h("div", { class: "pb-ed-grid" },
-          h("div", null, h("label", { class: "field-label", for: "pb-year" }, "Year"), yearIn),
+          h("div", null, h("label", { class: "field-label", for: "pb-risk" }, "Climate risk level: ", bandOut), riskIn,
+            h("div", { class: "pb-risk-ends" }, h("span", null, "Low"), h("span", null, "Extreme"))),
           h("div", null, h("label", { class: "field-label", for: "pb-note" }, t.prompt), note)),
         h("div", { class: "btn-row" },
           h("button", { type: "button", class: "btn secondary", onclick: () => {
@@ -329,7 +375,8 @@
             removePoint(l, p); selected = { line: l }; save(); refresh();
           } }, "Delete point")));
     } else {
-      box.append(h("div", { class: "pb-ed-head" }, h("strong", null, l.parentId ? "Alternate / improved path" : "Action line")));
+      box.append(h("div", { class: "pb-ed-head" }, h("strong", null, l.parentId ? "Alternate / improved path: " : "Pathway for: "),
+        shortTxt(displayName(l).replace(/^Alternate path: /, ""), 110)));
       if (l.parentId) {
         const cap = h("textarea", { rows: 2, id: "pb-caption", placeholder: "e.g. Add shade planting and a heat-stress response team",
           oninput: ev => { l.caption = ev.target.value; save(); refreshMap(); } });
@@ -337,20 +384,37 @@
         box.append(h("label", { class: "field-label", for: "pb-caption" }, "Caption: what is the alternate or improved action?"), cap);
       } else {
         const acts = A().namedActions();
-        const sel = h("select", { id: "pb-action", onchange: ev => { l.actionId = ev.target.value === "__other" ? "" : ev.target.value; save(); refresh(true); } },
+        const sel = h("select", { id: "pb-action", onchange: ev => {
+            const P = A().getPlan().pathway || [], entry = pathwayEntry(l), was = P.includes(entry);
+            l.actionId = ev.target.value === "__other" ? "" : ev.target.value;
+            if (was && !P.some(q => q !== entry && l.actionId && q.actionId === l.actionId)) { entry.actionId = l.actionId; entry.actionText = l.actionId ? "" : (l.label || ""); }
+            save(); refresh(true); } },
           h("option", { value: "__other" }, "Type my own name"), acts.map(a => h("option", { value: a.id }, a.num + ". " + shortTxt(a.text, 80))));
         sel.value = l.actionId && acts.some(a => a.id === l.actionId) ? l.actionId : "__other";
-        box.append(h("label", { class: "field-label", for: "pb-action" }, "Action"), sel);
+        box.append(h("label", { class: "field-label", for: "pb-action" }, "Action (from Actions tab)"), sel);
         if (sel.value === "__other") {
           const nm = h("input", { type: "text", value: l.label || "", placeholder: "Name of the action", "aria-label": "Action name",
-            oninput: ev => { l.label = ev.target.value; save(); refreshMap(); } });
+            oninput: ev => { const P = A().getPlan().pathway || [], entry = pathwayEntry(l);
+              l.label = ev.target.value; if (P.includes(entry)) entry.actionText = l.label; save(); refreshMap(); } });
           box.append(nm);
         }
-        box.append(h("p", { class: "note" }, "Starts in " + lineStart(l) + ". Drag the hollow circle at the start of the line to change it."));
+        box.append(h("p", { class: "note" }, "Starts at " + riskLabel(lineStart(l)).toLowerCase() + " climate risk. Drag the hollow circle at the start of the line to change it."));
+      }
+      box.append(addPointRow(l));
+      if (!l.parentId) {
+        // the pathway form (same fields as content.js pathway.fields), editing this action's plan.pathway entry
+        const entry = pathwayEntry(l);
+        const P = A().getPlan().pathway;
+        box.append(h("h3", { class: "pb-form-title" }, "Pathway details"),
+          h("p", { class: "note" }, "These details go into the Pathway planning table and summary of the report."),
+          A().pathwayForm(entry, () => { if (!P.includes(entry)) P.push(entry); }));
       }
       box.append(h("div", { class: "btn-row", style: "margin-top:10px" },
         h("button", { type: "button", class: "btn ghost", onclick: () => {
-          if (!confirm("Delete this line" + (lines().some(c => c.parentId === l.id) ? " and its branches" : "") + "?")) return;
+          const P = A().getPlan().pathway || [], entry = l.parentId ? null : pathwayEntry(l);
+          if (!confirm("Delete this line" + (lines().some(c => c.parentId === l.id) ? " and its branches" : "") +
+            (entry && P.includes(entry) ? " and its pathway details" : "") + "?")) return;
+          if (entry && P.includes(entry)) P.splice(P.indexOf(entry), 1);
           removeLine(l); selected = null; save(); refresh();
         } }, "Delete line")));
     }
@@ -369,26 +433,39 @@
     }
   }
 
+  // Every pathway entry (e.g. from an older plan or a merged file) gets a line, so its details can be opened
+  function syncFromPathways() {
+    let added = 0;
+    (A().getPlan().pathway || []).forEach(p => {
+      const name = (p.actionText || "").trim();
+      if (!p.actionId && !name) return;
+      const has = lines().some(l => !l.parentId && (p.actionId ? l.actionId === p.actionId : !l.actionId && (l.label || "").trim() === name));
+      if (!has) { lines().push({ id: uid(), actionId: p.actionId || "", label: p.actionId ? "" : name, start: R0, points: [] }); added++; }
+    });
+    if (added) save();
+  }
+
   function render(el) {
     selected = null;
     root = el;
+    syncFromPathways();
+    const unused = () => { const used = new Set(lines().map(l => l.actionId)); return A().namedActions().filter(a => !used.has(a.id)); };
     const addBtn = h("button", { type: "button", class: "btn primary", onclick: () => {
-      const used = new Set(lines().map(l => l.actionId));
-      const next = A().namedActions().find(a => !used.has(a.id));
-      const l = { id: uid(), actionId: next ? next.id : "", label: next ? "" : "New action", start: YEAR0, points: [] };
-      lines().push(l); selected = { line: l }; save(); refresh();
+      const next = unused()[0];
+      const l = { id: uid(), actionId: next ? next.id : "", label: next ? "" : "New action", start: R0, points: [] };
+      lines().push(l); selected = { line: l }; save(); refresh(); showEditor();
     } }, "+ Add action line");
+    const missing = unused();
+    const addAll = missing.length ? h("button", { type: "button", class: "btn secondary", onclick: () => {
+      unused().forEach(a => lines().push({ id: uid(), actionId: a.id, label: "", start: R0, points: [] }));
+      save(); addAll.remove(); refresh();
+    } }, "+ Add a line for every action (" + missing.length + ")") : null;
     mapHolder = h("div", { class: "pb-map" });
     edHolder = h("div", null);
     el.append(
-      h("div", { class: "pb-banner" }, h("strong", null, "Test tab. "),
-        "This is an experimental way to build adaptation pathways. It does not change your Pathway planning entries and is not yet in the reports."),
-      h("div", { class: "section-head" },
-        h("div", { class: "title-row" }, h("h2", null, "Pathway builder")),
-        h("p", { class: "intro" }, "Draw each action as a line through time. Click on a line to add a point, drag points to move them, then set each one as a trigger, turning point or stopping point. Branch off a new line for an alternate or improved action.")),
       h("div", { class: "card pb-card" },
-        h("div", { class: "btn-row pb-toolbar" }, addBtn,
-          h("button", { type: "button", class: "btn secondary", onclick: importFromPathways }, "Start from my pathway entries")),
+        h("div", { class: "btn-row pb-toolbar" }, addBtn, addAll,
+          h("button", { type: "button", class: "btn ghost", title: "Rebuild the map from what is written in each pathway (replaces the current map)", onclick: importFromPathways }, "Draft the map from the pathway details")),
         h("div", { class: "pb-scroll" }, mapHolder),
         h("div", { class: "pb-legend" },
           Object.values(TYPES).map(t => h("span", null, h("i", { class: "pb-lg-dot", style: "background:" + t.colour }), t.label)),
@@ -400,7 +477,7 @@
 
   /* ---------- for the reports ----------
      Returns null when the builder is empty, otherwise
-     { png: dataURL, w, h, rows: [{ path, type, year, note }] }. */
+     { png: dataURL, w, h, rows: [{ path, type, risk, note }] }. */
   async function exportForReport() {
     if (!lines().length) return null;
     const FS = 1.35, PAGE_H = 640;            // print font scale; max map height per page (in map units)
@@ -449,13 +526,27 @@
     const rows = [];
     ordered().forEach(({ l }) => {
       const path = displayName(l), isBranch = !!l.parentId;
-      if (l.parentId) rows.push({ path, isBranch, type: "New path", year: String(lineStart(l)), note: "Branches off here" });
-      (l.points || []).slice().sort((a, b) => a.year - b.year).forEach(p =>
-        rows.push({ path, isBranch, type: (TYPES[p.type] || TYPES.turning).label, year: String(p.year), note: p.note || "" }));
-      if (!l.parentId && !(l.points || []).length) rows.push({ path, isBranch, type: "Start", year: String(lineStart(l)), note: "" });
+      if (l.parentId) rows.push({ path, isBranch, type: "New path", risk: riskLabel(lineStart(l)), note: "Branches off here" });
+      (l.points || []).slice().sort((a, b) => a.risk - b.risk).forEach(p =>
+        rows.push({ path, isBranch, type: (TYPES[p.type] || TYPES.turning).label, risk: riskLabel(p.risk), note: p.note || "" }));
+      if (!l.parentId && !(l.points || []).length) rows.push({ path, isBranch, type: "Start", risk: riskLabel(lineStart(l)), note: "" });
     });
     return { pages, png: pages[0].png, w: pages[0].w, h: pages[0].h, rows, colours: Object.fromEntries(Object.entries(TYPES).map(([k, v]) => [v.label, v.colour])) };
   }
 
-  window.PathBuilder = { render, exportForReport };
+  /* ---------- read-only picture of the map (used by the worked example) ----------
+     Draws the lines of the plan the app currently holds; the caller swaps in the example plan first. */
+  function preview() {
+    if (!lines().length) return null;
+    const keep = selected; selected = null;
+    const svg = draw(); selected = keep;
+    svg.querySelectorAll(".pb-hit, .pb-hit-label").forEach(n => n.remove());
+    svg.querySelectorAll("[tabindex]").forEach(n => { n.removeAttribute("tabindex"); n.removeAttribute("role"); n.removeAttribute("aria-label"); });
+    svg.setAttribute("role", "img");
+    svg.setAttribute("aria-label", "Adaptation pathways map: each action is a line along increasing climate risk, with triggers, turning points, stopping points and branches.");
+    svg.classList.add("pb-static");
+    return svg;
+  }
+
+  window.PathBuilder = { render, exportForReport, preview };
 })();

@@ -14,7 +14,6 @@
     { id: "actions", label: "Actions" },
     { id: "scoring", label: "Scoring" },
     { id: "pathway", label: "Pathway planning" },
-    { id: "pathbuilder", label: "Pathway builder (test)" },   // TEST TAB: remove this line + js/pathbuilder.js to drop it
     { id: "summary", label: "Summary" },
     { id: "export", label: "Export" }
   ];
@@ -37,6 +36,7 @@
 
   let plan = load() || newPlan();
   let currentTab = safeGet(TAB_KEY) || "overview";
+  if (currentTab === "pathbuilder") currentTab = "pathway";   // the Pathway builder test tab is now Pathway planning
   if (!TABS.some(t => t.id === currentTab)) currentTab = "overview";
 
   function safeGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
@@ -72,7 +72,7 @@
   function setStatus(msg) { document.getElementById("saveStatus").textContent = msg; }
 
   /* ---------------- DOM helper ---------------- */
-  const SVG_TAGS = new Set(["svg", "path", "circle", "rect", "g", "line", "polyline", "polygon", "text", "tspan", "title"]);
+  const SVG_TAGS = new Set(["svg", "path", "circle", "rect", "g", "line", "polyline", "polygon", "text", "tspan", "title", "defs", "linearGradient", "stop"]);
   // Line icon from icons.js (24 x 24 grid)
   function icon(name, size, cls) {
     const spec = (window.ICONS || {})[name];
@@ -132,20 +132,63 @@
     const block = (title, text) => h("div", { class: "help-block" },
       h("div", { class: "help-title" }, title),
       text ? h("div", { class: "help-text" }, text) : h("div", { class: "help-text tbf" }, "To be filled"));
-    const extra = (help.links || []).filter(l => l && l[1]);
-    const more = help.moreInfo
-      ? h("a", { class: "more-link", href: help.moreInfo, target: "_blank", rel: "noopener" }, "More information ↗")
-      : extra.length ? null
+    // All links for this question: moreInfo plus any extra [label, url] pairs.
+    // One link opens directly; several open a small pop-up list.
+    // moreInfo: null turns the link line off completely, even if extra links are listed.
+    const all = help.moreInfo === null ? []
+      : (help.moreInfo ? [["More information", help.moreInfo]] : []).concat((help.links || []).filter(l => l && l[1]));
+    let more;
+    if (all.length === 1) more = h("a", { class: "more-link", href: all[0][1], target: "_blank", rel: "noopener" },
+      (all[0][0] === "More information" ? "More information" : "More information: " + all[0][0]) + " ↗");
+    else if (all.length > 1) more = linksPopup(all);
+    else more = help.moreInfo === null ? null   // null = this question needs no link
       : h("span", { class: "more-link disabled", title: "A link to the resource website will be added here" }, "More information — link coming soon");
-    const extraList = extra.length ? h("div", { class: "help-links" },
-      h("span", { class: "help-title" }, "More information"),
-      h("ul", null, extra.map(([label, url]) => h("li", null, h("a", { href: url, target: "_blank", rel: "noopener" }, label + " ↗"))))) : null;
+    const examples = block("Examples", help.examples);
+    if (help.exampleStep) examples.append(h("button", { type: "button", class: "link-btn ex-open",
+      onclick: () => openExampleStep(help.exampleStep) }, "See this step of the worked example ›"));
     const panel = h("div", { class: "help-panel", hidden: true },
       block("Instructions", help.instructions),
-      block("Examples", help.examples),
+      examples,
       block("Guidance", help.guidance),
-      h("div", { class: "help-more" }, more, extraList));
+      more ? h("div", { class: "help-more" }, more) : null);
     return panel;
+  }
+
+  // "More information (n links)" button that opens a list of links; closes on Escape or a click elsewhere.
+  function linksPopup(list, label) {
+    const pop = h("div", { class: "links-pop", role: "dialog", "aria-label": (label || "More information") + " links", hidden: true },
+      h("div", { class: "links-pop-title" }, label ? label.replace(/\s*\(\d+\)$/, "") : "More information"),
+      h("ul", null, list.map(([label, url]) => h("li", null,
+        h("a", { href: url, target: "_blank", rel: "noopener" }, label + " ↗"),
+        h("span", { class: "links-pop-host" }, url.replace(/^https?:\/\/(www\.)?/, "").split(/[/#?]/)[0])))));
+    const btn = h("button", { type: "button", class: "more-link more-btn", "aria-expanded": "false" },
+      (label || "More information (" + list.length + " links)") + " ▾");
+    const close = () => { pop.hidden = true; btn.setAttribute("aria-expanded", "false");
+      document.removeEventListener("click", outside, true); document.removeEventListener("keydown", esc);
+      window.removeEventListener("scroll", onScroll, true); window.removeEventListener("resize", close); };
+    const outside = e => { if (!wrap.contains(e.target)) close(); };
+    const esc = e => { if (e.key === "Escape") { close(); btn.focus(); } };
+    const onScroll = e => { if (!pop.contains(e.target)) close(); };
+    // Fixed to the window so cards that clip their content (e.g. hazard cards) cannot cut it off
+    const place = () => {
+      const r = btn.getBoundingClientRect(), vw = document.documentElement.clientWidth, vh = window.innerHeight;
+      pop.style.maxHeight = ""; const ph = pop.offsetHeight, pw = pop.offsetWidth;
+      const below = vh - r.bottom - 12, above = r.top - 12;
+      const up = ph > below && above > below;
+      pop.style.left = Math.max(8, Math.min(r.left, vw - pw - 8)) + "px";
+      pop.style.top = (up ? Math.max(8, r.top - 6 - Math.min(ph, above)) : r.bottom + 6) + "px";
+      pop.style.maxHeight = Math.max(160, up ? above : below) + "px";
+    };
+    btn.addEventListener("click", () => {
+      if (!pop.hidden) { close(); return; }
+      pop.hidden = false; btn.setAttribute("aria-expanded", "true");
+      place();
+      document.addEventListener("click", outside, true); document.addEventListener("keydown", esc);
+      window.addEventListener("scroll", onScroll, true); window.addEventListener("resize", close);
+      const first = pop.querySelector("a"); if (first) first.focus();
+    });
+    const wrap = h("span", { class: "links-wrap" }, btn, pop);
+    return wrap;
   }
 
   function labelWithHelp(text, help, forId, extra) {
@@ -251,6 +294,7 @@
 
     const extras = [];
     if (def.searchLink) extras.push(extLink(def.searchLink, "Search list"));
+    if (def.searchLinks) extras.push(linksPopup(def.searchLinks, "Search lists (" + def.searchLinks.length + ")"));   // one list per jurisdiction
     if (def.gps && navigator.geolocation) {
       extras.push(h("button", { type: "button", class: "link-btn", onclick: () => {
         navigator.geolocation.getCurrentPosition(
@@ -267,7 +311,7 @@
   function sectionHead(sec, extra) {
     const panel = helpPanel(sec.help);
     // "Step n of 7" label for the numbered planning tabs
-    const steps = TABS.filter(t => !["overview", "start", "export", "pathbuilder"].includes(t.id));
+    const steps = TABS.filter(t => !["overview", "start", "export"].includes(t.id));
     const stepNo = steps.findIndex(t => t.id === currentTab) + 1;
     return h("div", { class: "section-head" },
       stepNo ? h("span", { class: "step-kicker" }, "Step " + stepNo + " of " + steps.length) : null,
@@ -286,18 +330,21 @@
   const namedActions = () => allActions().filter(a => (a.text || "").trim());
 
   function scoreOf(actionId) {
-    // Culturally acceptable is a gate: criteria only count when it is "Y"
+    // All seven criteria count. 0 = unknown / limited information: it adds nothing to the total but is counted,
+    // so gaps in knowledge are visible. Cultural considerations are recorded separately and are not scored.
     const s = plan.scores[actionId] || {};
+    if (s.cultural === "D") s.cultural = "U";   // older drafts: "to be discussed" is now "unknown"
     const cultural = s.cultural || "";
-    let total = 0, n = 0;
-    if (cultural === "Y") C.scoring.criteria.forEach(c => { if (s[c.id] !== undefined && s[c.id] !== "") { total += Number(s[c.id]); n++; } });
-    return { total, n, complete: n === C.scoring.criteria.length, max: C.scoring.criteria.length * 3, cultural, excluded: cultural === "N" };
+    let total = 0, n = 0, unknown = 0;
+    C.scoring.criteria.forEach(c => {
+      if (s[c.id] !== undefined && s[c.id] !== "") { total += Number(s[c.id]); n++; if (String(s[c.id]) === "0") unknown++; }
+    });
+    return { total, n, unknown, complete: n === C.scoring.criteria.length, max: C.scoring.criteria.length * 3, cultural, excluded: false };
   }
   function scoreText(actionId) {
     const s = scoreOf(actionId);
-    if (s.excluded) return "Not culturally acceptable";
-    if (!s.n) return "—";
-    return s.total + "/" + s.max + (s.complete ? "" : " (incomplete)");
+    if (!s.n) return "\u2014";
+    return s.total + "/" + s.max + (s.complete ? "" : " (incomplete)") + (s.unknown ? " \u00b7 " + s.unknown + " unknown" : "");
   }
   function pathwayActionName(p) {
     if (p.actionId) {
@@ -393,8 +440,8 @@
   /* ---- worked example viewer ---- */
   function exampleScore(E, id) {
     const s = E.scores[id] || {};
-    if (s.cultural !== "Y") return s.cultural === "N" ? "Excluded" : "—";
-    return C.scoring.criteria.reduce((t, c) => t + Number(s[c.id] || 0), 0) + "/21";
+    const unk = C.scoring.criteria.filter(c => String(s[c.id]) === "0").length;
+    return C.scoring.criteria.reduce((t, c) => t + Number(s[c.id] || 0), 0) + "/21" + (unk ? " (" + unk + " unknown)" : "");
   }
 
   function exampleSteps(E) {
@@ -412,7 +459,7 @@
       { id: "plan", title: "1. Plan and species", body: () => [
         kv([["Plan title", E.start.planTitle], ["Plan focus", E.start.planFocus], ["Purpose", E.start.purpose],
             ["Species", E.species.name], ["Habitat and needs", E.species.habitat], ["Why it matters", E.species.importance],
-            ["Status", "Federal (EPBC): " + E.species.epbc + " · Queensland: " + E.species.qld]])] },
+            ["Status", "Federal (EPBC): " + E.species.epbc + " · " + (E.species.state || "State or territory") + ": " + E.species.qld]])] },
       { id: "site", title: "2. Site", body: () => [
         h("p", { class: "ex-note" }, "The site is illustrative."),
         kv([["Place", E.site.placeName], ["Environment", E.site.environment], ["Existing plans", E.site.mgmtPlans],
@@ -428,14 +475,16 @@
           h("p", null, h("em", null, "Sensitivity (how it is affected): "), hz.impact),
           h("p", null, h("em", null, "Adaptive capacity (ability to adapt): "), hz.adapt))) },
       { id: "actions", title: "5. Existing and planned actions", body: () => [
-        h("p", null, "Each action passes the culturally acceptable check first (agreed with Traditional Owners), then is scored 0–3 on seven criteria. Action 6 shows how scoring flags a risky option."),
+        h("p", null, "Each action is scored on seven criteria (3 = good, 2 = OK, 1 = bad, 0 = unknown or limited information), and each action\u2019s cultural acceptability is recorded alongside. Action 6 shows how scoring flags a risky option, and action 4 shows an unknown (not yet discussed with landholders)."),
         h("table", { class: "ex-table" }, h("thead", null, h("tr", null, h("th", null, "#"), h("th", null, "Action"), h("th", null, "Type"), h("th", null, "Helps with"), h("th", null, "Score"))),
           h("tbody", null, acts.map(a => h("tr", null, h("td", null, a.num), h("td", null, a.text), h("td", null, a.type), h("td", null, a.how),
-            h("td", { class: "ex-score" }, exampleScore(E, a.id))))))] },
+            h("td", { class: "ex-score" }, exampleScore(E, a.id)))))),
+        exampleScoreTable(E, acts)] },
       { id: "pathways", title: "6. Pathways", body: () => [
         h("p", null, "Actions to start now, and actions held for later with the signals that trigger them."),
+        exampleMap(E),
         E.pathway.map(p => h("div", { class: "ex-path" }, h("div", { class: "ex-path-head" }, h("span", { class: "when " + p.timing.toLowerCase() }, p.timing), h("strong", null, actName(p.actionId))),
-          kv([["Short-term goal", p.shortGoal], ["Long-term goal", p.longGoal], ["Trigger", p.trigger], ["Turning point", p.turning],
+          kv([["Pre-conditions", p.preconditions], ["Short-term goal", p.shortGoal], ["Long-term goal", p.longGoal], ["Trigger", p.trigger], ["Turning point", p.turning],
               ["Improved / additional action", p.improved], ["Stopping point", p.stopping]])))] },
       { id: "outputs", title: "7. What you can download", body: () => [
         h("p", null, "The Export tab produces a report in Word (.docx, to keep editing) and PDF (to share or print). Both contain:"),
@@ -443,12 +492,28 @@
           h("li", null, "Cover with plan title, focus and purpose, followed by species and site details"),
           h("li", null, "Risk assessment table, with priority colour-coded"),
           h("li", null, "Existing and potential actions, with scores"),
-          h("li", null, "Scoring table (actions that are not culturally acceptable are shown as excluded)"),
-          h("li", null, "Pathway planning table"),
+          h("li", null, "Scoring table, with unknowns counted and cultural acceptability in the last column"),
+          h("li", null, "Pathway planning table, including pre-conditions"),
+          h("li", null, "Adaptation pathways map along increasing climate risk, with a table of triggers, turning points and stopping points"),
           h("li", null, "One-page summary poster with the species photo")),
         h("p", null, "Download this example to see the result, or load it into the tool to explore and edit it."),
         exampleButtons()] }
     ];
+  }
+
+  // The example's pathway map (from the Pathway builder), drawn read-only by briefly swapping in the example plan
+  function exampleMap(E) {
+    if (!window.PathBuilder || !window.PathBuilder.preview || !(E.pathwayBuilder || {}).lines) return null;
+    const saved = plan;
+    try {
+      plan = migrate(clone(E));
+      const svg = window.PathBuilder.preview();
+      return svg ? h("figure", { class: "ex-pbmap" },
+        h("div", { class: "pb-scroll" }, svg),
+        h("figcaption", null, "Pathway map: each action is a line along increasing climate risk, from low (light) to extreme (dark). ",
+          h("b", { style: "color:#2b6cb0" }, "Triggers"), ", ", h("b", { style: "color:#b07c00" }, "turning points"), " and ",
+          h("b", { style: "color:#c62828" }, "stopping points"), " sit at the level of risk where the group would act; branches show improved or additional actions.")) : null;
+    } finally { plan = saved; }
   }
 
   function exampleButtons() {
@@ -468,6 +533,43 @@
         plan = migrate(clone(window.EXAMPLE_PLAN)); changed(); go("start");
       } }, "Load example into the tool"),
       status);
+  }
+
+  // The example's scoring table: each criterion 0–3 (coloured as on the Scoring tab), total and cultural acceptability
+  function exampleScoreTable(E, acts) {
+    const crit = C.scoring.criteria, CUL = Object.fromEntries((C.scoring.cultural.options || []).map(o => [o[0], o[1]]));
+    return [h("h5", { class: "ex-subhead" }, "Scoring table"),
+      h("div", { class: "ex-scores-wrap" }, h("table", { class: "ex-table ex-scores" },
+        h("thead", null, h("tr", null, h("th", null, "#"), h("th", null, "Action"),
+          crit.map(c => h("th", { class: "num" }, c.short || c.label)), h("th", { class: "num" }, "Total"), h("th", null, "Cultural acceptability"))),
+        h("tbody", null, acts.map(a => {
+          const s = E.scores[a.id] || {}, code = s.cultural === "D" ? "U" : s.cultural;
+          return h("tr", null, h("td", null, a.num), h("td", null, a.text),
+            crit.map(c => h("td", { class: "num", "data-score": s[c.id] }, s[c.id])),
+            h("td", { class: "num ex-score" }, exampleScore(E, a.id).replace("/21", "")),
+            h("td", { "data-cultural": code }, (CULT_ICON[code] || "") + " " + (CUL[code] || "")));
+        })))),
+      h("p", { class: "ex-note" }, "3 = good, 2 = OK, 1 = bad, 0 = unknown or limited information. For Cost and Risk, 3 = lowest cost or lowest risk.")];
+  }
+
+  // One step of the worked example in a pop-over window (opened from an ⓘ panel's Examples)
+  function openExampleStep(id) {
+    const step = exampleSteps(window.EXAMPLE_PLAN).find(s => s.id === id);
+    if (!step) return;
+    const opener = document.activeElement;
+    const close = () => { back.remove(); document.removeEventListener("keydown", esc); if (opener && opener.focus) opener.focus(); };
+    const esc = e => { if (e.key === "Escape") close(); };
+    const closeBtn = h("button", { type: "button", class: "btn ghost small", onclick: close }, "Close ✕");
+    const back = h("div", { class: "ex-modal-back", onclick: e => { if (e.target === back) close(); } },
+      h("div", { class: "ex-modal", role: "dialog", "aria-modal": "true", "aria-label": "Worked example: " + step.title },
+        h("div", { class: "ex-modal-head" },
+          h("div", null, h("span", { class: "ex-badge" }, "Worked example"), " ", h("strong", null, "Spectacled flying-fox – " + step.title)),
+          closeBtn),
+        h("div", { class: "ex-content" }, ...[step.body()].flat(Infinity).filter(Boolean)),
+        h("p", { class: "note" }, "The full example, with Word and PDF downloads, is on the Overview tab under “Worked example”.")));
+    document.body.append(back);
+    document.addEventListener("keydown", esc);
+    closeBtn.focus();
   }
 
   function exampleViewer() {
@@ -750,6 +852,8 @@
           ? { id: c.id, label: c.label, type: "select", options: C.risk.priorityOptions, help: c.help }
           : { id: c.id, label: c.label, type: "textarea", rows: 3, help: c.help };
         const f = field(def, hz, c.id, { label: c.group + ": " + c.label });
+        // pop-up link lists (e.g. hazard maps or recovery plans for each state and territory)
+        (c.popups || []).forEach(pp => f.querySelector(".label-row").append(linksPopup(pp.list, pp.label + " (" + pp.list.length + ")")));
         const cl = extLinks(linkList(c));
         if (cl) f.querySelector(".label-row").append(cl);
         if (c.id === "priority") {
@@ -769,6 +873,11 @@
 
   R.actions = el => {
     el.append(sectionHead(C.actions));
+    const AL = C.actions.adaptlog;
+    if (AL) el.append(h("div", { class: "callout adaptlog-callout" },
+      h("div", { class: "callout-title" }, AL.title),
+      h("p", null, AL.text),
+      h("a", { href: AL.url, target: "_blank", rel: "noopener", class: "btn secondary" }, AL.linkLabel + " ↗")));
     const all = allActions();
     const group = (type, title, help) => {
       const list = plan.actions[type];
@@ -800,8 +909,8 @@
   };
 
   /* ---------------- face scale (scoring) ---------------- */
-  // Mouth shapes for each score: 3 smile, 2 flat, 1 slight frown, 0 frown.
-  const FACE_MOUTH = { "3": "M7 13.6 Q12 18.6 17 13.6", "2": "M7.6 15.4 H16.4", "1": "M7.6 16.6 Q12 13.8 16.4 16.6", "0": "M7 17.6 Q12 11.8 17 17.6" };
+  // Mouth shapes for each score: 3 smile (good), 2 flat (OK), 1 frown (bad), 0 wavy with a raised eyebrow (unknown).
+  const FACE_MOUTH = { "3": "M7 13.6 Q12 18.6 17 13.6", "2": "M7.6 15.4 H16.4", "1": "M7 17.6 Q12 11.8 17 17.6", "0": "M7.2 16 q1.6 -2 3.2 0 t3.2 0 t3.2 0" };
   function faceIcon(value, size) {
     const o = (C.scoring.scale || []).find(x => x.value === String(value));
     const svg = h("svg", { viewBox: "0 0 24 24", width: size || 30, height: size || 30, class: "face-ico", "aria-hidden": "true", focusable: "false" });
@@ -813,7 +922,8 @@
       h("circle", { cx: "12", cy: "12", r: "11", fill: "#" + o.color }),
       h("circle", { cx: "8.4", cy: "9.4", r: "1.5", fill: "#fff" }),
       h("circle", { cx: "15.6", cy: "9.4", r: "1.5", fill: "#fff" }),
-      h("path", { d: FACE_MOUTH[o.value], fill: "none", stroke: "#fff", "stroke-width": "1.9", "stroke-linecap": "round" }));
+      h("path", { d: FACE_MOUTH[o.value], fill: "none", stroke: "#fff", "stroke-width": "1.9", "stroke-linecap": "round", "stroke-linejoin": "round" }));
+    if (o.value === "0") svg.append(h("path", { d: "M13.6 6.4 l3.6 -1.4", stroke: "#fff", "stroke-width": "1.6", "stroke-linecap": "round", fill: "none" }));   // raised eyebrow
     return svg;
   }
 
@@ -874,40 +984,63 @@
       return;
     }
     const crit = C.scoring.criteria;
+    // Guidance for a column opens in one wide panel above the table (only one at a time), so it is easy to read.
+    const helpHolder = h("div", { class: "score-help", hidden: true });
+    let helpOwner = null;
+    const closeHelp = () => {
+      helpHolder.hidden = true; helpHolder.replaceChildren();
+      if (helpOwner) { helpOwner.setAttribute("aria-expanded", "false"); helpOwner.classList.remove("on"); }
+      helpOwner = null;
+    };
+    const openHelp = (c, btn) => {
+      if (helpOwner === btn) { closeHelp(); return; }
+      closeHelp();
+      const panel = helpPanel(c.help); panel.hidden = false;
+      helpHolder.append(h("div", { class: "score-help-head" }, h("h3", null, c.label),
+        h("button", { type: "button", class: "btn ghost score-help-close", onclick: () => { const b = helpOwner; closeHelp(); if (b) b.focus(); } }, "Close ✕")), panel);
+      helpHolder.hidden = false; helpOwner = btn;
+      btn.setAttribute("aria-expanded", "true"); btn.classList.add("on");
+      helpHolder.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    };
     const headCell = (c, extra) => {
-      const panel = helpPanel(c.help);
+      const btn = h("button", { type: "button", class: "info-btn", "aria-expanded": "false",
+        "aria-label": "Show guidance for " + c.label, title: "Instructions, examples and guidance" }, "i");
+      btn.addEventListener("click", () => openHelp(c, btn));
       return h("th", { scope: "col" },
-        h("div", { class: "th-inner" }, h("span", null, c.label), helpButton(panel)),
-        extra ? h("div", { class: "th-note" }, extra) : null, panel);
+        h("div", { class: "th-inner" }, h("span", null, c.label), btn),
+        extra ? h("div", { class: "th-note" }, extra) : null);
     };
     const SCALE = C.scoring.scale;
     const table = h("table", { class: "score-table" },
       h("thead", null, h("tr", null,
         h("th", { scope: "col", class: "col-action" }, "Action"),
-        headCell(C.scoring.cultural, "Y / N"),
-        crit.map(c => headCell(c, "0–3" + (c.note ? " (" + c.note + ")" : ""))),
-        h("th", { scope: "col", class: "col-total" }, "Score", h("br"), "/ 21"))));
+        crit.map(c => headCell(c, "0\u20133" + (c.note ? " (" + c.note + ")" : ""))),
+        h("th", { scope: "col", class: "col-total" }, "Score", h("br"), "/ 21"),
+        headCell(C.scoring.cultural, C.scoring.cultural.sub))));
     const legend = h("div", { class: "score-legend", "aria-label": "Scoring scale" },
       h("span", { class: "score-legend-title" }, "Scale:"),
       SCALE.map(o => h("span", { class: "score-chip" }, faceIcon(o.value, 24), h("span", null, o.value + " " + o.label))),
-      h("span", { class: "score-legend-note" }, "For Cost and Risk, a green face means low cost or low risk."));
+      h("span", { class: "score-legend-note" }, "Use grey (0) when you don\u2019t know yet. For Cost and Risk, a green face means low cost or low risk."));
     const tbody = h("tbody");
     acts.forEach(a => {
       const s = plan.scores[a.id] = plan.scores[a.id] || {};
+      if (s.cultural === "D") s.cultural = "U";   // older drafts: "to be discussed" is now "unknown"
       const totalCell = h("td", { class: "total" });
       const pickers = [];
       const upd = () => {
         const sc = scoreOf(a.id);
-        totalCell.textContent = sc.excluded ? "Excluded" : sc.n ? sc.total + (sc.complete ? "" : " *") : "—";
-        tr.classList.toggle("flag-no", sc.excluded);
-        const open = s.cultural === "Y";
-        culturalSel.dataset.score = s.cultural === "Y" ? "3" : s.cultural === "N" ? "0" : "";
-        pickers.forEach(pk => pk.update(open ? (s[pk.key] || "") : "", !open,
-          open ? "" : sc.excluded ? "Not scored — action is not culturally acceptable" : "Set Culturally acceptable to Y first"));
+        totalCell.replaceChildren(...[sc.n ? sc.total + (sc.complete ? "" : " *") : "\u2014",
+          sc.unknown ? h("span", { class: "unk-count" }, sc.unknown + " unknown") : null].filter(Boolean));
+        culturalSel.dataset.cultural = s.cultural || "";
+        culturalSel.title = ((C.scoring.cultural.options || []).find(o => o[0] === s.cultural) || [])[2] || "";
+        tr.classList.toggle("cultural-no", s.cultural === "N");
+        if (s.cultural === "N") totalCell.append(h("span", { class: "cult-flag" }, "\u26d4 Not culturally acceptable"));
+        pickers.forEach(pk => pk.update(s[pk.key] || "", false, ""));
       };
-      const culturalSel = h("select", { class: "score-sel cultural-sel", "aria-label": "Culturally acceptable for action " + a.num,
+      const culturalSel = h("select", { class: "score-sel cultural-sel", "aria-label": "Cultural acceptability for action " + a.num,
         onchange: e => { s.cultural = e.target.value; changed(); upd(); } },
-        h("option", { value: "" }, "–"), h("option", { value: "Y" }, "✅ Y"), h("option", { value: "N" }, "❌ N"));
+        h("option", { value: "" }, "\u2013 choose"),
+        (C.scoring.cultural.options || []).map(([v, lab, meaning]) => h("option", { value: v, title: meaning }, (CULT_ICON[v] || "") + " " + lab)));
       culturalSel.value = s.cultural || "";
       const critCell = c => {
         const pk = facePicker(c.label + " score for action " + a.num, v => { s[c.id] = v; changed(); upd(); });
@@ -915,158 +1048,29 @@
         pickers.push(pk);
         return h("td", { class: "face-cell" }, pk.el);
       };
-      const tr = h("tr", null,
+      const tr = h("tr", null,   // upd() uses tr, so it is only called after this line
         h("th", { scope: "row", class: "col-action" }, h("span", { class: "num" }, a.num), " ", a.text,
           h("div", { class: "tag " + a.type }, a.type === "existing" ? "Existing" : "Potential")),
-        h("td", null, culturalSel),
         crit.map(critCell),
-        totalCell);
+        totalCell,
+        h("td", { class: "cultural-cell" }, culturalSel));
       upd();
       tbody.append(tr);
     });
     table.append(tbody);
-    el.append(legend);
+    el.append(legend, helpHolder);
     el.append(h("div", { class: "table-wrap" }, table));
-    el.append(h("p", { class: "note" }, "Culturally acceptable works as a filter: the other criteria open only when it is Y. Actions marked N are excluded (shown in red). * = not all criteria scored yet."));
+    el.append(h("p", { class: "note" }, "Grey faces (0) mean unknown or limited information: they add nothing to the score and are counted, so you can see where more information is needed. * = not all criteria scored yet. Cultural acceptability is chosen for every action and does not change the score; actions marked \u26d4 Not acceptable are flagged in red."));
   };
 
-  /* ---------------- adaptation pathways map ----------------
-     Draws each pathway as a line through time:
-       start (Now = solid dot; Later = dashed line then a trigger diamond)
-       -> turning point (ring), where an improved/additional action branches off as a new line
-       -> stopping point (end bar) or an arrow if the action continues.
-     Positions are schematic (not to scale); the map is redrawn as people type. */
-  const PATH_COLOURS = ["#1f5f4a", "#2b6cb0", "#c06014", "#7b4fa0", "#2f8f6b", "#a8323e", "#4a6572", "#8a6d1d"];
-  const short = (t, n) => { t = (t || "").trim(); return t.length > n ? t.slice(0, n - 1) + "…" : t; };
-  function wrapLines(t, n, max) {
-    const words = (t || "").trim().split(/\s+/); const lines = []; let cur = "";
-    for (const w of words) { if ((cur + " " + w).trim().length > n) { lines.push(cur); cur = w; } else cur = (cur + " " + w).trim(); }
-    if (cur) lines.push(cur);
-    if (lines.length > max) { lines.length = max; lines[max - 1] = short(lines[max - 1], n - 1) + "…"; }
-    return lines;
-  }
+  const POSTER_PHOTO_RATIO = 3 / 4;   // width / height of the photo box on the summary poster (also used in export.js)
+  const CULT_ICON = { Y: "\u2705", C: "\u26a0\ufe0f", N: "\u26d4", U: "\u2754" };   // cultural acceptability
 
-  function pathwayMap(list) {
-    const W = 1000, LABEL = 230, X0 = 262, XTRIG = 400, XTURN = 610, XSTOP = 860, XEND = 968;
-    const rows = list.map((p, i) => ({ p, i, name: pathwayActionName(p) || "Action " + (i + 1),
-      later: p.timing === "Later", hasTurn: !!(p.turning || "").trim(), branch: !!(p.improved || "").trim(),
-      stop: !!(p.stopping || "").trim() && !/^(not expected|none|n\/a|no stop|ongoing|continues)/i.test((p.stopping || "").trim()), colour: PATH_COLOURS[i % PATH_COLOURS.length] }));
-    let y = 74;
-    rows.forEach(r => { r.y = y; y += (r.branch ? 104 : 74); });
-    const H = Math.max(y + 10, 140);
-    const svg = h("svg", { viewBox: "0 0 " + W + " " + H, class: "pathmap-svg", role: "img",
-      "aria-label": "Adaptation pathways map: each action is drawn as a line from when it starts, through turning points, to where it stops or continues." });
-    // time axis
-    svg.append(
-      h("line", { x1: X0, y1: 34, x2: XEND + 6, y2: 34, stroke: "#9aa8a1", "stroke-width": 2 }),
-      h("path", { d: "M" + (XEND + 6) + " 29 l10 5 l-10 5 z", fill: "#9aa8a1" }),
-      ...[["Now", X0], ["Near term", 470], ["Longer term", 730], ["Future", 930]].map(([t, x]) =>
-        h("text", { x, y: 24, "text-anchor": "middle", class: "pm-axis" }, t)),
-      h("text", { x: 12, y: 24, class: "pm-axis" }, "Action"));
-    rows.forEach(r => {
-      const { p, y: ly, colour: c } = r;
-      const g = h("g", { class: "pm-row" });
-      // separator + action label
-      g.append(h("line", { x1: 0, y1: ly - 30, x2: W, y2: ly - 30, stroke: "#e6ebe8", "stroke-width": 1 }));
-      const lines = wrapLines(r.name, 30, 2);
-      const label = h("text", { x: 12, y: ly - (lines.length - 1) * 8 + 4, class: "pm-label" },
-        lines.map((l, k) => h("tspan", { x: 12, dy: k ? 16 : 0 }, l)));
-      g.append(h("rect", { x: 0, y: ly - 26, width: 4, height: 52, fill: c, rx: 2 }), label,
-        h("text", { x: 12, y: ly + (lines.length > 1 ? 30 : 22), class: "pm-when " + (r.later ? "later" : "now") }, r.later ? "LATER" : (p.timing === "Now" ? "NOW" : "")));
-      const tip = (title, text) => h("title", null, title + (text ? ": " + text.trim() : ""));
-      const note = (x, yy, text, anchor) => text ? h("text", { x, y: yy, "text-anchor": anchor || "middle", class: "pm-note" }, short(text, 30)) : null;
-      // where the solid (active) line starts
-      const xStart = r.later ? XTRIG : X0;
-      const xMainEnd = r.stop ? XSTOP : XEND;
-      if (r.later) g.append(h("line", { x1: X0, y1: ly, x2: XTRIG, y2: ly, stroke: c, "stroke-width": 4, "stroke-dasharray": "2 9", "stroke-linecap": "round", opacity: 0.7 }));
-      g.append(h("line", { x1: xStart, y1: ly, x2: xMainEnd, y2: ly, stroke: c, "stroke-width": 6, "stroke-linecap": "round" }));
-      // ending: stop bar, or arrow (continues)
-      if (r.stop) g.append(h("g", { class: "pm-marker" }, tip("Stopping point", p.stopping),
-        h("line", { x1: XSTOP, y1: ly - 15, x2: XSTOP, y2: ly + 15, stroke: c, "stroke-width": 7, "stroke-linecap": "round" })),
-        note(XSTOP, ly - 20, p.stopping));
-      else g.append(h("path", { d: "M" + XEND + " " + (ly - 9) + " l14 9 l-14 9 z", fill: c }));
-      // start marker
-      if (r.later) g.append(h("g", { class: "pm-marker" }, tip("Trigger", p.trigger),
-        h("path", { d: "M" + XTRIG + " " + (ly - 13) + " l13 13 l-13 13 l-13 -13 z", fill: "#fff", stroke: c, "stroke-width": 4 })),
-        note(XTRIG, ly - 20, p.trigger));
-      else g.append(h("g", { class: "pm-marker" }, tip("Start", p.trigger || "Starts now"),
-        h("circle", { cx: X0, cy: ly, r: 10, fill: c })), note(X0 + 4, ly - 18, p.trigger, "start"));
-      // turning point, and the new branch for the improved / additional action
-      if (r.hasTurn || r.branch) {
-        if (r.branch) {
-          const by = ly + 46;
-          g.append(h("path", { d: "M" + XTURN + " " + ly + " C" + (XTURN + 40) + " " + ly + " " + (XTURN + 30) + " " + by + " " + (XTURN + 80) + " " + by + " L" + XEND + " " + by,
-            fill: "none", stroke: c, "stroke-width": 5, "stroke-linecap": "round", opacity: 0.75 }),
-            h("path", { d: "M" + XEND + " " + (by - 8) + " l13 8 l-13 8 z", fill: c, opacity: 0.75 }),
-            h("g", { class: "pm-marker" }, tip("Improved / additional action", p.improved),
-              h("text", { x: XTURN + 90, y: by - 9, class: "pm-branch" }, "↳ " + short(p.improved, 46))));
-        }
-        g.append(h("g", { class: "pm-marker" }, tip("Turning point", p.turning),
-          h("circle", { cx: XTURN, cy: ly, r: 12, fill: "#fff", stroke: c, "stroke-width": 5 }),
-          h("circle", { cx: XTURN, cy: ly, r: 4, fill: c })),
-          note(XTURN, ly - 20, p.turning));
-      }
-      svg.append(g);
-    });
-    if (!rows.length) svg.append(h("text", { x: W / 2, y: 90, "text-anchor": "middle", class: "pm-note" }, "Add a pathway below to see it drawn here."));
-    return svg;
-  }
-
-  function pathwayMapCard() {
-    const holder = h("div", { class: "pathmap-holder" });
-    const draw = () => holder.replaceChildren(pathwayMap(plan.pathway));
-    draw();
-    const legend = h("div", { class: "pathmap-legend" },
-      h("span", null, h("i", { class: "lg-dot" }), "Starts now"),
-      h("span", null, h("i", { class: "lg-dash" }), h("i", { class: "lg-diamond" }), "Starts later, at the trigger"),
-      h("span", null, h("i", { class: "lg-ring" }), "Turning point"),
-      h("span", null, h("i", { class: "lg-branch" }), "New path: improved / additional action"),
-      h("span", null, h("i", { class: "lg-stop" }), "Stopping point"),
-      h("span", null, h("i", { class: "lg-arrow" }), "Continues"));
-    const card = h("div", { class: "card pathmap" },
-      h("div", { class: "title-row" }, h("h3", null, "Pathway map")),
-      h("p", { class: "note", style: "margin:4px 0 12px" }, "Each action is drawn as a line through time. Hover over a marker to see its details. The map updates as you fill in the pathways below; positions are schematic, not to scale."),
-      h("div", { class: "pathmap-scroll" }, holder), legend);
-    card.redraw = draw;
-    return card;
-  }
-
+  /* ---- pathway planning: the pathway map with a form for each line (js/pathbuilder.js) ---- */
   R.pathway = el => {
     el.append(sectionHead(C.pathway));
-    const acts = namedActions();
-    const map = pathwayMapCard();
-    el.append(map);
-    plan.pathway.forEach((p, i) => {
-      const card = h("div", { class: "card pathway" });
-      const sel = h("select", { "aria-label": "Action", onchange: e => {
-        p.actionId = e.target.value === "__other" ? "" : e.target.value; changed();
-        other.hidden = !!p.actionId; map.redraw();
-      } },
-        h("option", { value: "" }, "— choose an action —"),
-        acts.map(a => h("option", { value: a.id }, a.num + ". " + a.text.slice(0, 90))),
-        h("option", { value: "__other" }, "Other (type it in)"));
-      sel.value = p.actionId && acts.some(a => a.id === p.actionId) ? p.actionId : (p.actionText ? "__other" : "");
-      const other = h("input", { type: "text", class: "other-action", placeholder: "Describe the action",
-        value: p.actionText || "", oninput: e => { p.actionText = e.target.value; changed(); map.redraw(); } });
-      other.hidden = sel.value !== "__other";
-      card.append(h("div", { class: "pathway-head" },
-        h("div", { class: "pathway-action" }, h("label", { class: "field-label" }, "Action (from Actions tab)"), sel, other),
-        h("button", { type: "button", class: "icon-btn danger", title: "Remove", onclick: () => {
-          if (confirm("Remove this pathway?")) { plan.pathway.splice(i, 1); changed(); render(); } } }, "✕")));
-      const grid = h("div", { class: "grid-2" });
-      C.pathway.fields.forEach(f => grid.append(field(f, p, f.id, { onChange: map.redraw })));
-      card.append(grid);
-      el.append(card);
-    });
-    if (!plan.pathway.length) el.append(h("div", { class: "card empty" }, "No pathways yet. Add one for each action you plan to carry forward."));
-    const row = h("div", { class: "btn-row" },
-      h("button", { type: "button", class: "btn secondary", onclick: () => { plan.pathway.push({ id: uid() }); changed(); render(); } }, "+ Add pathway"));
-    const missing = acts.filter(a => !plan.pathway.some(p => p.actionId === a.id));
-    if (missing.length) row.append(h("button", { type: "button", class: "btn ghost", onclick: () => {
-      missing.forEach(a => plan.pathway.push({ id: uid(), actionId: a.id, timing: a.type === "existing" ? "Now" : "" }));
-      changed(); render();
-    } }, "+ Add a pathway for every action (" + missing.length + ")"));
-    el.append(row);
+    if (window.PathBuilder) window.PathBuilder.render(el);
+    else el.append(h("div", { class: "card empty" }, "The pathway map could not be loaded."));
   };
 
   /* ---- summary ---- */
@@ -1080,7 +1084,7 @@
     if (!key.length) key = hz.filter(x => rank(x) >= PRI.indexOf("Medium"));
     key.sort((a, b) => rank(b) - rank(a));
     const pw = plan.pathway.map(p => ({ ...p, name: pathwayActionName(p) })).filter(p => p.name);
-    const culturalNo = namedActions().filter(a => (plan.scores[a.id] || {}).cultural === "N");
+    const cult = code => namedActions().filter(a => (plan.scores[a.id] || {}).cultural === code);
     let now = pw.filter(p => p.timing === "Now").map(p => p.name);
     let later = pw.filter(p => p.timing === "Later").map(p => p.name);
     if (!pw.length) now = plan.actions.existing.map(a => (a.text || "").trim());
@@ -1094,7 +1098,9 @@
       longGoals: bullets(pw.map(p => (p.longGoal || "").trim())),
       shortGoals: bullets(pw.map(p => (p.shortGoal || "").trim())),
       cultural: bullets([(plan.species.importance || "").trim()].concat(
-        culturalNo.map(a => "Not culturally acceptable: " + a.text.trim()))),
+        cult("N").map(a => "Not culturally acceptable: " + a.text.trim()),
+        cult("C").map(a => "May raise cultural concerns: " + a.text.trim()),
+        cult("U").map(a => "Check with Traditional Owners: " + a.text.trim()))),
       now: bullets(now), later: bullets(later)
     };
   }
@@ -1116,19 +1122,36 @@
     };
 
     // photo
+    // The preview frame has the same 3:4 shape as the photo box on the report poster, so what you see is what prints.
+    // fit "fill" (default) crops the photo to the frame; pos (0-100) moves the crop; fit "whole" shows all of it.
     const preview = h("div", { class: "photo-preview" });
     const paintPhoto = () => {
       preview.replaceChildren();
-      if (S.photo && S.photo.data) {
-        preview.append(h("img", { src: S.photo.data, alt: "Photo of " + (plan.species.name || "the species") }));
-        preview.append(h("button", { type: "button", class: "link-btn", onclick: () => { S.photo = null; changed(); paintPhoto(); } }, "Remove photo"));
+      const P = S.photo;
+      if (P && P.data) {
+        const fill = P.fit !== "whole", pos = P.pos === undefined ? 50 : P.pos;
+        const ar = P.w && P.h ? P.w / P.h : 0.75, wide = ar > POSTER_PHOTO_RATIO;
+        const img = h("img", { src: P.data, alt: "Photo of " + (plan.species.name || "the species"),
+          style: "object-fit:" + (fill ? "cover" : "contain") + ";object-position:" + (wide ? pos + "% 50%" : "50% " + pos + "%") });
+        const frame = h("div", { class: "photo-frame" }, img);
+        const needsCrop = fill && Math.abs(ar - POSTER_PHOTO_RATIO) > 0.02;
+        const slider = needsCrop ? h("label", { class: "photo-pos" }, (wide ? "Crop position (left ↔ right)" : "Crop position (top ↕ bottom)"),
+          h("input", { type: "range", min: 0, max: 100, step: 1, value: pos, "aria-label": "Crop position",
+            oninput: e => { P.pos = Number(e.target.value); img.style.objectPosition = wide ? P.pos + "% 50%" : "50% " + P.pos + "%"; },
+            onchange: () => changed() })) : null;
+        const fitSel = h("div", { class: "photo-fit", role: "radiogroup", "aria-label": "How the photo fits the poster" },
+          [["fill", "Fill the photo box (crop)"], ["whole", "Show the whole photo"]].map(([v, lab]) =>
+            h("label", null, h("input", { type: "radio", name: "photoFit", value: v, checked: (P.fit || "fill") === v,
+              onchange: () => { P.fit = v; changed(); paintPhoto(); } }), " " + lab)));
+        preview.append(frame, h("div", { class: "photo-note" }, "Preview of the photo box on the report poster"), fitSel, slider,
+          h("button", { type: "button", class: "link-btn", onclick: () => { S.photo = null; changed(); paintPhoto(); } }, "Remove photo"));
       } else {
-        preview.append(h("div", { class: "photo-empty" }, "No photo yet"));
+        preview.append(h("div", { class: "photo-empty" }, "No photo yet. A portrait (tall) photo fits the poster best; other photos are cropped to fit, and you can adjust the crop."));
       }
     };
     paintPhoto();
     const fileIn = h("input", { type: "file", accept: "image/jpeg,image/png,image/webp", id: "photoFile", class: "visually-hidden",
-      onchange: e => { const f = e.target.files[0]; if (f) readPhoto(f).then(p => { S.photo = { ...(S.photo || {}), ...p }; changed(); paintPhoto(); }).catch(err => alert(err.message)); e.target.value = ""; } });
+      onchange: e => { const f = e.target.files[0]; if (f) readPhoto(f).then(p => { S.photo = { ...(S.photo || {}), ...p, pos: 50 }; changed(); paintPhoto(); }).catch(err => alert(err.message)); e.target.value = ""; } });
     const [prow, ppanel] = labelWithHelp("Species photo", C.summary.photoHelp, "photoFile");
     const photoBox = h("div", { class: "sbox sbox-photo" }, prow, ppanel, preview,
       h("label", { class: "btn secondary upload", for: "photoFile" }, "Upload photo"), fileIn,
@@ -1225,7 +1248,7 @@
   function buildTabs() {
     const nav = document.getElementById("tabs");
     nav.replaceChildren();
-    const UNNUMBERED = ["overview", "start", "export", "pathbuilder"];
+    const UNNUMBERED = ["overview", "start", "export"];
     let n = 0;
     TABS.forEach(t => nav.append(h("button", { type: "button", class: "tab", role: "tab", "data-tab": t.id,
       id: "tab-" + t.id, "aria-controls": "panel", onclick: () => go(t.id) },
@@ -1299,11 +1322,15 @@
 
   // For export.js
   window.AppModel = { allActions, namedActions, scoreOf, pathwayActionName };
-  // Small API for add-on tabs (used by the Pathway builder test tab)
-  window.AppAPI = { h, uid, changed, allActions, namedActions, pathwayActionName, getPlan: () => plan,
+  // Small API used by js/pathbuilder.js (Pathway planning) and js/merge.js
+  // The Pathway planning form for one pathway entry (same fields and help as the Pathway planning tab)
+  const pathwayForm = (p, onChange) => {
+    const grid = h("div", { class: "grid-2" });
+    C.pathway.fields.forEach(f => grid.append(field(f, p, f.id, { onChange, idPrefix: "pb-" })));
+    return grid;
+  };
+  window.AppAPI = { h, uid, changed, allActions, namedActions, pathwayActionName, pathwayForm, getPlan: () => plan,
     // used by the merge tool: replace the whole plan, save it and redraw
     replacePlan: p => { plan = migrate(p); changed(); render(); } };
-  R.pathbuilder = el => window.PathBuilder ? window.PathBuilder.render(el)
-    : el.append(h("div", { class: "card empty" }, "The Pathway builder test is not installed."));
   document.addEventListener("DOMContentLoaded", init);
 })();

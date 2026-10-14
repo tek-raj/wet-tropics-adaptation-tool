@@ -22,6 +22,7 @@ window.EXAMPLE_PLAN = {
     habitat: "Roosts in large colonies (camps) in rainforest, mangroves, paperbark and eucalypt forest, including several urban camps in the Cairns region. Feeds at night on the nectar, pollen and fruit of rainforest, eucalypt and melaleuca trees, travelling long distances between roosts and feeding areas. Females usually raise one young a year; pups are born in late spring and depend on their mothers for several months.",
     importance: "Endangered species. Key pollinator and long-distance seed disperser for Wet Tropics rainforest. Cultural values to be confirmed with Traditional Owners.",
     epbc: "Endangered",
+    state: "Queensland",
     qld: "Endangered",
     monitoring: "Population counts at roosts across the Wet Tropics. Wildlife carers record animals rescued during heat and food-shortage events."
   },
@@ -96,12 +97,13 @@ window.EXAMPLE_PLAN = {
     "ex-a1": { cultural: "Y", implement: "3", cost: "2", feasible: "3", effective: "2", social: "3", risk: "2", cobenefits: "2" },
     "ex-a2": { cultural: "Y", implement: "3", cost: "3", feasible: "3", effective: "1", social: "2", risk: "3", cobenefits: "2" },
     "ex-a3": { cultural: "Y", implement: "2", cost: "2", feasible: "2", effective: "2", social: "2", risk: "3", cobenefits: "3" },
-    "ex-a4": { cultural: "Y", implement: "2", cost: "1", feasible: "2", effective: "3", social: "3", risk: "3", cobenefits: "3" },
+    "ex-a4": { cultural: "Y", implement: "2", cost: "1", feasible: "2", effective: "3", social: "0", risk: "3", cobenefits: "3" },
     "ex-a5": { cultural: "Y", implement: "3", cost: "3", feasible: "3", effective: "2", social: "3", risk: "3", cobenefits: "1" },
-    "ex-a6": { cultural: "Y", implement: "2", cost: "2", feasible: "2", effective: "1", social: "2", risk: "0", cobenefits: "0" }
+    "ex-a6": { cultural: "C", implement: "2", cost: "2", feasible: "2", effective: "1", social: "2", risk: "1", cobenefits: "1" }
   },
   pathway: [
     { id: "ex-p1", actionId: "ex-a1", timing: "Now",
+      preconditions: "Trained, vaccinated volunteers and carers; a sprinkler or misting system with water supply; council approval to work in the roost.",
       shortGoal: "Response team trained and ready before each summer; no unmanaged mass-death events.",
       longGoal: "The roost population persists through hotter summers.",
       trigger: "Action already started. Activate when the forecast is 40°C or more, or when a severe heatwave warning is issued.",
@@ -109,6 +111,7 @@ window.EXAMPLE_PLAN = {
       improved: "Add roost microclimate planting (action 3) and early-warning loggers (action 5).",
       stopping: "Not expected to stop; review after each summer." },
     { id: "ex-p2", actionId: "ex-a5", timing: "Now",
+      preconditions: "Permission to fix loggers in roost trees; someone to download and check the data.",
       shortGoal: "Loggers installed and reporting before the next summer.",
       longGoal: "A local heat early-warning system for all major roosts.",
       trigger: "Start now; low cost and useful in any future.",
@@ -116,6 +119,7 @@ window.EXAMPLE_PLAN = {
       improved: "Share data with neighbouring councils and expand to other roosts.",
       stopping: "Replace if a regional early-warning service covers this roost." },
     { id: "ex-p3", actionId: "ex-a3", timing: "Now",
+      preconditions: "Cleared or degraded land next to the roost that is free of buildings and roads and available for planting; landholder or council agreement; seedlings of suitable local species.",
       shortGoal: "2 ha planted around the roost by 2028, with 80% seedling survival.",
       longGoal: "A shaded, cooler roost with continuous canopy.",
       trigger: "Start in the next wet-season planting window.",
@@ -123,6 +127,7 @@ window.EXAMPLE_PLAN = {
       improved: "Switch to more heat-tolerant local species and water seedlings through the first dry season.",
       stopping: "Canopy closed and self-sustaining." },
     { id: "ex-p4", actionId: "ex-a4", timing: "Later",
+      preconditions: "Willing landholders with land available for planting; funding; a supply of food-tree seedlings.",
       shortGoal: "Food-tree planting plan agreed with landholders and the NRM body.",
       longGoal: "Food available all year round across the landscape.",
       trigger: "After the next severe cyclone (category 3+) within 50 km, or when funding is secured.",
@@ -130,8 +135,34 @@ window.EXAMPLE_PLAN = {
       improved: "Coordinate a regional food-tree program with councils and NRM groups.",
       stopping: "Food plantings mature and flowering reliably." }
   ],
+  // Pathway map (Pathway builder): positions are levels of climate risk, 0 = low to 100 = extreme
+  pathwayBuilder: { lines: [
+    { id: "ex-l1", actionId: "ex-a1", start: 0, points: [
+      { id: "ex-q1", type: "trigger", risk: 0, note: "Already started. Activate on a forecast of 40°C or a severe heatwave warning." },
+      { id: "ex-q2", type: "turning", risk: 52, note: "Deaths above about 5% of the roost in a summer, despite the response." },
+      { id: "ex-q3", type: "turning", risk: 82, note: "Mass deaths continue even with shade planting in place." }] },
+    { id: "ex-l1b", parentId: "ex-l1", fromPointId: "ex-q2", caption: "Add roost microclimate planting (action 3) and early-warning loggers (action 5).", points: [] },
+    { id: "ex-l1c", parentId: "ex-l1", fromPointId: "ex-q3", caption: "Last resort: sprinklers or misting in the roost (action 6), only after talking with Traditional Owners.", points: [] },
+    { id: "ex-l2", actionId: "ex-a5", start: 0, points: [
+      { id: "ex-q4", type: "trigger", risk: 0, note: "Start now: low cost and useful at any level of risk." },
+      { id: "ex-q5", type: "turning", risk: 44, note: "Roost temperatures regularly approach 40°C." },
+      { id: "ex-q6", type: "stop", risk: 88, note: "A regional early-warning service covers this roost." }] },
+    { id: "ex-l2b", parentId: "ex-l2", fromPointId: "ex-q5", caption: "Share data with neighbouring councils and expand to other roosts.", points: [] },
+    { id: "ex-l3", actionId: "ex-a3", start: 0, points: [
+      { id: "ex-q7", type: "trigger", risk: 6, note: "Next wet-season planting window, once land around the roost is secured." },
+      { id: "ex-q8", type: "turning", risk: 48, note: "Seedling survival below 50% after two wet seasons." },
+      { id: "ex-q9", type: "stop", risk: 76, note: "Canopy closed and self-sustaining." }] },
+    { id: "ex-l3b", parentId: "ex-l3", fromPointId: "ex-q8", caption: "Switch to more heat-tolerant local species and water seedlings through the first dry season.", points: [] },
+    { id: "ex-l4", actionId: "ex-a4", start: 0, points: [
+      { id: "ex-q10", type: "trigger", risk: 30, note: "A severe cyclone (category 3+) within 50 km, or funding secured." },
+      { id: "ex-q11", type: "turning", risk: 62, note: "Two years in a row of food-shortage events." },
+      { id: "ex-q12", type: "stop", risk: 92, note: "Food plantings mature and flowering reliably." }] },
+    { id: "ex-l4b", parentId: "ex-l4", fromPointId: "ex-q11", caption: "Coordinate a regional food-tree program with councils and NRM groups.", points: [] }
+  ] },
   summary: {
-    photo: null,
+    photo: window.EXAMPLE_PHOTO ? { data: window.EXAMPLE_PHOTO.data, w: window.EXAMPLE_PHOTO.w, h: window.EXAMPLE_PHOTO.h,
+      caption: window.EXAMPLE_PHOTO.caption, credit: window.EXAMPLE_PHOTO.credit,
+      fit: "fill", pos: 57 } : null,   // crop to the poster's portrait photo box, centred on the mother and pup
     hazards: "• Heatwaves (Very high)\n• Cyclones (High)\n• Increased temperature and hot days (High)",
     impacts: "• Heatwaves: heat stress above about 42°C; mass deaths, especially of dependent young\n• Cyclones: loss of flowers and fruit for months, causing starvation and movement into towns",
     triggers: "• Forecast of 40°C or more, or a severe heatwave warning\n• Severe cyclone (category 3+) within 50 km",

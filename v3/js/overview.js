@@ -103,6 +103,7 @@ window.OVERVIEW = {
     { title: "State of the Climate (CSIRO and Bureau of Meteorology)", text: "How Australia’s climate has changed and is projected to change.", url: "https://www.csiro.au/en/research/environmental-impacts/climate-change/state-of-the-climate" },
     { title: "Climate Change in Australia", text: "National climate projections, data and guidance for regions across Australia.", url: "https://www.climatechangeinaustralia.gov.au/en/" },
     { title: "Australian Climate Service \u2013 data explorer", text: "National hazard information and climate data.", url: "https://www.acs.gov.au/pages/data-explorer" },
+    { title: "Australia’s Strategy for Nature 2024–2030", text: "The National Biodiversity Strategy and Action Plan, including a target to reduce the impact of climate change on biodiversity.", url: "https://www.dcceew.gov.au/environment/biodiversity/conservation/strategy" },
     { title: "IPCC glossary", text: "Definitions of climate terms, including vulnerability and adaptive capacity.", url: "https://apps.ipcc.ch/glossary/" }
   ],
 
@@ -143,9 +144,11 @@ window.OVERVIEW = {
         { def: "Flood", icon: true, text: "More intense heavy rainfall can flood habitat, drown nests and burrows, and spread weeds." },
         { def: "Sea level rise", icon: true, text: "Rising seas and higher storm surges affect mangroves, coastal wetlands and low-lying habitat." },
         { def: "Fire", icon: true, text: "Hotter, drier conditions extend the fire season and allow fire to reach fire-sensitive vegetation, such as rainforest and alpine areas, that rarely burned before." },
+        "Hazard maps for each state and territory are listed under “Where to get climate data” on this page, and under “Hazard maps” on every hazard in the Risk assessment tab.",
         { links: [
-          ["Hazard maps – Queensland Future Climate Dashboard (Long Paddock)", "https://www.longpaddock.qld.gov.au/qld-future-climate/dashboard-cmip6/"],
-          ["Interactive climate map", "https://tek-raj.github.io/public/index_long.html#8/-17/145.7/0/30"],
+          ["Climate Change in Australia – national projections", "https://www.climatechangeinaustralia.gov.au/en/"],
+          ["Australian Climate Service – national hazards viewer", "https://www.acs.gov.au/pages/data-explorer"],
+          ["Interactive climate hazard map (Wet Tropics)", "https://tek-raj.github.io/public/index_long.html#8/-17/145.7/0/30"],
           ["Bureau of Meteorology heatwave service", "http://www.bom.gov.au/australia/heatwave/"]
         ] }
       ]
@@ -188,7 +191,11 @@ window.OVERVIEW = {
       blurb: "The eight steps this tool walks you through.",
       processSteps: true,
       body: [
-        "Adaptation planning works through a set of steps, from understanding the species and site to deciding what to do now and what to do later. Each step below is a tab in this tool; click a step to go there."
+        "Adaptation planning works through a set of steps, from understanding the species and site to deciding what to do now and what to do later. Each step below is a tab in this tool; click a step to go there.",
+        "Plans like this contribute to Australia’s Strategy for Nature 2024–2030 (the National Biodiversity Strategy and Action Plan), which includes a target to reduce the impact of climate change on biodiversity.",
+        { links: [
+          ["Australia’s Strategy for Nature – National Biodiversity Strategy and Action Plan (DCCEEW)", "https://www.dcceew.gov.au/environment/biodiversity/conservation/strategy"]
+        ] }
       ]
     }
   ],
@@ -233,13 +240,13 @@ window.OVERVIEW = {
       about: "With the priority hazards known, list what is already being done that helps, and what else could reduce the risk. Good adaptation actions reduce exposure, reduce sensitivity, or help the species adapt, for example by protecting cool refuges or reconnecting habitat.",
       doing: ["List existing actions and how each one helps.", "Brainstorm potential new actions for the High and Very high hazards.", "Say which hazard each action addresses."],
       tip: "Include actions for other threats (weeds, predators, clearing) where they make the species more resilient to climate hazards. List options even if they seem hard; the next step compares them." },
-    { tab: "scoring", label: "Compare actions", text: "Culturally acceptable first, then score feasibility, cost, effectiveness and more.",
+    { tab: "scoring", label: "Compare actions", text: "Score feasibility, cost, effectiveness and more, and record cultural acceptability.",
       about: "Not every action is equally useful, affordable or appropriate. Scoring gives a structured way to compare options and talk them through as a group.",
-      doing: ["Check with Traditional Owners whether each action is culturally acceptable. Only acceptable actions go on to be scored.", "Score each action 0–3 on ability to implement, cost, feasibility, effectiveness, social acceptability, risk of negative consequences and co-benefits.", "Compare the totals out of 21."],
+      doing: ["Score each action on ability to implement, cost, feasibility, effectiveness, social acceptability, risk of negative consequences and co-benefits: 3 = good, 2 = OK, 1 = bad, 0 = unknown or limited information.", "Compare the totals out of 21, and note where unknowns show more information is needed.", "Record whether each action is culturally acceptable, may raise concerns, is not acceptable, or unknown, ideally after talking with Traditional Owners. This is not part of the score, but it is weighed in the decision."],
       tip: "Scores guide the discussion; they do not make the decision. Watch for maladaptation: actions that seem helpful now but increase risk later." },
-    { tab: "pathway", label: "Plan pathways", text: "Decide what to do now and later, with triggers, turning points and stopping points.",
+    { tab: "pathway", label: "Plan pathways", text: "Decide what to do now and as climate risk rises, with pre-conditions, triggers, turning points and stopping points.",
       about: "Climate change is uncertain, so a good plan does not lock in one course of action. Adaptation pathways set out what to do now, what to keep ready for later, and the signals that tell you when to start, change or stop each action.",
-      doing: ["Choose which actions to carry forward and whether each starts Now or Later.", "Set short-term and long-term goals.", "Define the trigger to start, the turning point to improve or add an action, and the stopping point."],
+      doing: ["Add a line on the pathway map for each action you plan to carry forward, then click it to open its pathway form.", "Choose whether each action starts Now or Later.", "Note the pre-conditions each action needs (e.g. cleared land free of buildings for reforestation, approvals, funding).", "Set short-term and long-term goals.", "Define the trigger to start, the turning point to improve or add an action, and the stopping point, as levels of climate risk rather than dates."],
       tip: "Triggers and turning points work best when someone is already monitoring them, for example a heatwave warning or an annual survey count." },
     { tab: "summary", label: "Summarise", text: "A one-page summary poster with a species photo.",
       about: "The summary page is often the only page people read. It brings the key hazards, impacts, goals, triggers and actions together on one page with a photo of the species.",
