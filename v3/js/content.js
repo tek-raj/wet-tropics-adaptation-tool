@@ -77,11 +77,11 @@ window.APP_CONTENT = {
           guidance: "Use the format: [species, group, hazard or site] + “climate adaptation plan” + [location]. Keep it under about 10 words so it fits on the report cover.",
           moreInfo: null } },
       { id: "planFocus", label: "Plan focus", type: "select",
-        options: ["Single species", "Group of species", "Particular climate hazard", "Site or property", "Region or Local Government Area (LGA)", "Other"],
+        options: ["Single species", "Group of species", "Ecosystem or ecological community", "Particular climate hazard", "Site or property", "Region or Local Government Area (LGA)", "Other"],
         help: {
           instructions: "Choose what the plan is mainly about.",
-          examples: "Single species – e.g. koalas on one property\nGroup of species – e.g. beach-nesting shorebirds along a stretch of coast\nParticular climate hazard – e.g. heatwave impacts on a flying-fox camp\nSite or property – e.g. all priority species on a nature reserve\nRegion or LGA – e.g. priority species across a council area or catchment",
-          guidance: "The rest of the tool is set out species by species. If the focus is a group, hazard or site, use the Species tab for the most at-risk species and describe the others under “Purpose of the plan”.",
+          examples: "Single species – e.g. koalas on one property\nGroup of species – e.g. beach-nesting shorebirds along a stretch of coast\nEcosystem or ecological community – e.g. a coastal saltmarsh or a threatened rainforest community\nParticular climate hazard – e.g. heatwave impacts on a flying-fox camp\nSite or property – e.g. all priority species on a nature reserve\nRegion or LGA – e.g. priority species across a council area or catchment",
+          guidance: "The rest of the tool is set out for one species or ecosystem. If the focus is a group, hazard or site, use the Species / ecosystem tab for the most at-risk species or ecosystem and describe the others under “Purpose of the plan”.",
           moreInfo: null } },
       { id: "purpose", label: "Purpose of the plan", type: "textarea", rows: 3,
         help: {
@@ -112,58 +112,60 @@ window.APP_CONTENT = {
 
   /* ---------------- TAB 1: SPECIES ---------------- */
   species: {
-    title: "Species details",
-    intro: "Describe the species this plan is for: what it needs, why it matters and its conservation status.",
+    title: "Species or ecosystem details",
+    intro: "Describe the species or ecosystem this plan is for: what it needs, why it matters and its conservation status.",
     help: {
-      instructions: "Complete one plan per species. Draw on field knowledge, Traditional Owner knowledge, recovery plans and species profiles.",
-      examples: "",
-      guidance: "Good species information is the foundation of the risk assessment. The better you describe what the species needs (food, water, shelter, breeding sites, temperature range), the easier it is to see how climate hazards will affect it.",
-      moreInfo: "" },
+      instructions: "Complete one plan per species or ecosystem (for example, a threatened ecological community, a vegetation type or a wetland). Draw on field knowledge, Traditional Owner knowledge, recovery plans, conservation advice and species or community profiles.",
+      examples: "Species: Koala; Spectacled flying-fox; Hooded plover\nEcosystem: Mabi forest (Complex notophyll vine forest 5b); Coastal saltmarsh; Alpine sphagnum bogs and associated fens",
+      guidance: "Good information about the species or ecosystem is the foundation of the risk assessment. The better you describe what it needs (for a species: food, water, shelter, breeding sites, temperature range; for an ecosystem: its extent, structure, key species, water regime and fire regime), the easier it is to see how climate hazards will affect it.",
+      moreInfo: null },
     fields: [
-      { id: "name", label: "Species name", type: "text",
+      { id: "name", label: "Species or ecosystem name", type: "text",
         help: {
-          instructions: "Give the common name and scientific name. Add the population or subspecies if relevant.",
-          examples: "Koala (Phascolarctos cinereus)\nMountain pygmy-possum (Burramys parvus)\nHooded plover (Thinornis cucullatus)\nSpectacled flying-fox (Pteropus conspicillatus)",
-          guidance: "Include local Aboriginal names only where Traditional Owners have agreed they can be recorded. Check the scientific name against the EPBC or state/territory species search so it matches official records. Search ALA, iNaturalist or your state or territory species database by common or scientific name to confirm both.",
+          instructions: "For a species, give the common name and scientific name, and the population or subspecies if relevant. For an ecosystem, give its name as listed, or its vegetation type or mapping code.",
+          examples: "Koala (Phascolarctos cinereus)\nSpectacled flying-fox (Pteropus conspicillatus)\nMabi forest (Complex notophyll vine forest 5b) – threatened ecological community\nCoastal saltmarsh, [estuary name]\nRegional ecosystem 7.8.3 (Qld) or plant community type (NSW)",
+          guidance: "Include local Aboriginal names only where Traditional Owners have agreed they can be recorded. For a species, check the scientific name against the EPBC or state/territory species search so it matches official records; ALA, iNaturalist and state databases help confirm both names. For an ecosystem, use the name in the EPBC or state list of threatened ecological communities, or the vegetation type from your state’s vegetation mapping (Site tab, Description of environment).",
           moreInfo: "",
           links: [
             ["Atlas of Living Australia (ALA) species search", "https://bie.ala.org.au/"],
             ["iNaturalist species search", "https://www.inaturalist.org/taxa"],
-            ["EPBC species profiles (SPRAT)", "https://www.environment.gov.au/cgi-bin/sprat/public/sprat.pl"]
+            ["EPBC species profiles (SPRAT)", "https://www.environment.gov.au/cgi-bin/sprat/public/sprat.pl"],
+            ["EPBC threatened ecological communities (DCCEEW)", "https://www.dcceew.gov.au/environment/biodiversity/threatened/communities"]
           ].concat(STATE_SPECIES_RECORDS) } },
-      { id: "habitat", label: "Ecosystem and habitat", type: "textarea", rows: 4,
+      { id: "habitat", label: "Habitat, ecosystem and key needs", type: "textarea", rows: 4,
         help: {
-          instructions: "Describe where the species is found and what it needs to survive: habitat type, food (diet), water, shelter, breeding sites and home range.",
-          examples: "Eucalypt forest and woodland. Feeds almost entirely on the leaves of a limited set of local eucalypt species, which also provide most of its water; drinks from the ground in hot, dry weather. Home range from a few hectares to over 100 hectares depending on habitat quality. Needs connected trees to move safely between feeding and shelter trees.",
-          guidance: "Focus on the needs most sensitive to climate:\n• temperature limits\n• dependence on water\n• seasonal food sources\n• specific breeding or roosting sites\n• how far the species can move\nThe species’ recovery plan or conservation advice is usually the best source. TERN’s threatened species literature reviews summarise published knowledge for many species.",
+          instructions: "For a species, describe where it is found and what it needs to survive: habitat type, food (diet), water, shelter, breeding sites and home range. For an ecosystem, describe where it occurs, its structure and key species, and the conditions it depends on (water, fire, soil, temperature).",
+          examples: "Species: Eucalypt forest and woodland. Feeds almost entirely on the leaves of a limited set of local eucalypt species, which also provide most of its water; drinks from the ground in hot, dry weather. Home range from a few hectares to over 100 hectares depending on habitat quality. Needs connected trees to move safely between feeding and shelter trees.\nEcosystem: Coastal saltmarsh on the upper intertidal flats of the estuary, dominated by succulent herbs and grasses. Depends on regular tidal inundation and room to move inland as sea levels rise; provides feeding habitat for migratory shorebirds and nursery habitat for fish.",
+          guidance: "Focus on the needs most sensitive to climate:\n• temperature limits\n• dependence on water\n• seasonal food sources\n• specific breeding or roosting sites\n• how far the species can move, or how far the ecosystem can shift\nThe recovery plan or conservation advice is usually the best source. TERN’s threatened species literature reviews summarise published knowledge for many species.",
           moreInfo: "",
           links: [
             ["Recovery plans and conservation advice (DCCEEW)", "https://www.dcceew.gov.au/environment/biodiversity/threatened/recovery-plans"],
-            ["Threatened species literature reviews (TERN EMSA)", "https://emsa.tern.org.au/threatened-species-resources#Literature-Reviews"] ] } },
+            ["Threatened species literature reviews (TERN EMSA)", "https://emsa.tern.org.au/threatened-species-resources#Literature-Reviews"],
+            ["EPBC threatened ecological communities (DCCEEW)", "https://www.dcceew.gov.au/environment/biodiversity/threatened/communities"] ] } },
       { id: "importance", label: "Why is it important?", type: "textarea", rows: 3,
         help: {
-          instructions: "Explain why this species matters: to Traditional Owners, to the community, to the ecosystem and for conservation.",
-          examples: "Culturally significant totem species for Traditional Owners; appears in stories and ceremony.\nBush tucker species.\nPollinator or seed disperser – many plants rely on it to reproduce.\nThreatened species and a focus of the local community.",
+          instructions: "Explain why this species or ecosystem matters: to Traditional Owners, to the community, to other species and ecosystems, and for conservation.",
+          examples: "Culturally significant totem species for Traditional Owners; appears in stories and ceremony.\nBush tucker species or plant community.\nPollinator or seed disperser – many plants rely on it to reproduce.\nThe ecosystem provides habitat for several threatened species, filters water or protects the coast from storms.\nThreatened species or ecological community and a focus of the local community.",
           guidance: "Cultural values should be described by, or with the permission of, the Traditional Owners for this Country. Do not record culturally sensitive or restricted knowledge in the plan. Instead, note that cultural values exist and who to contact about them. If relevant, note how the plan supports national targets, such as reducing the impact of climate change on biodiversity under Australia’s Strategy for Nature (the National Biodiversity Strategy and Action Plan).",
           moreInfo: "https://www.dcceew.gov.au/environment/biodiversity/conservation/strategy" } },
       { id: "epbc", label: "Conservation status — Federal (EPBC listed)", type: "radio",
         options: ["Not listed", "Conservation dependent", "Vulnerable", "Endangered", "Critically endangered"],
         searchLink: "epbcSearch",
         help: {
-          instructions: "Search for the species in the federal Species Profile and Threats Database (Search list link) and select its status under the EPBC Act.",
-          examples: "",
-          guidance: "Status is listed for the species, subspecies or population. Make sure you select the listing that applies to the population at your site; for example, the koala is listed as Endangered only for its Queensland, New South Wales and ACT populations. The species profile also links to its recovery plan and conservation advice.",
+          instructions: "Search for the species or threatened ecological community in the federal lists (Search list link, or More information) and select its status under the EPBC Act.",
+          examples: "Species: Koala (Queensland, NSW and ACT populations) – Endangered\nEcological community: Mabi forest (Complex notophyll vine forest 5b) – Critically endangered",
+          guidance: "Species status is listed for the species, subspecies or population; select the listing that applies at your site (for example, the koala is listed as Endangered only for its Queensland, New South Wales and ACT populations). Threatened ecological communities are listed as Vulnerable, Endangered or Critically endangered; check the listing’s description to confirm the patch at your site meets it. Profiles link to the recovery plan and conservation advice.",
           moreInfo: "",
-          links: [["EPBC species profiles (SPRAT)", "https://www.environment.gov.au/cgi-bin/sprat/public/sprat.pl"]] } },
+          links: [["EPBC species profiles (SPRAT)", "https://www.environment.gov.au/cgi-bin/sprat/public/sprat.pl"], ["EPBC threatened ecological communities (DCCEEW)", "https://www.dcceew.gov.au/environment/biodiversity/threatened/communities"]] } },
       { id: "state", label: "State or territory", type: "select",
         options: ["Australian Capital Territory", "New South Wales", "Northern Territory", "Queensland", "South Australia", "Tasmania", "Victoria", "Western Australia"],
         help: {
-          instructions: "Choose the state or territory where the site is. Its threatened species list is used for the status question below.",
+          instructions: "Choose the state or territory where the site is. Its threatened species and ecological community lists are used for the status question below.",
           examples: "",
           guidance: "If the plan covers sites in more than one state or territory, choose the main one and note the others under “Purpose of the plan” on the Start tab.",
           moreInfo: null } },
       // The id stays "qld" so plan files saved by earlier versions still load.
-      { id: "qld", label: "Conservation status — State or territory (Threatened species list)", type: "radio",
+      { id: "qld", label: "Conservation status — State or territory (Threatened species or ecological community list)", type: "radio",
         options: ["Not listed", "Vulnerable", "Endangered", "Critically endangered"],
         searchLinks: [
           ["Australian Capital Territory – ACT threatened species (Nature Conservation Act 2014)", "https://www.act.gov.au/environment/animals-and-plants/act-threatened-species"],
@@ -175,9 +177,9 @@ window.APP_CONTENT = {
           ["Victoria – FFG Act Threatened List (Flora and Fauna Guarantee Act 1988)", "https://www.environment.vic.gov.au/conserving-threatened-species/threatened-list"],
           ["Western Australia – Threatened species and communities (Biodiversity Conservation Act 2016)", "https://www.dbca.wa.gov.au/management/threatened-species-and-communities"] ],
         help: {
-          instructions: "Search for the species in the threatened species list for your state or territory (Search lists link) and select its status under that state’s or territory’s law.",
+          instructions: "Search for the species or ecological community in the threatened list for your state or territory (Search lists link) and select its status under that state’s or territory’s law.",
           examples: "Queensland – Endangered (Nature Conservation Act 1992)\nNew South Wales – Vulnerable (Biodiversity Conservation Act 2016)\nVictoria – Critically endangered (Flora and Fauna Guarantee Act 1988)",
-          guidance: "State/territory and federal status can differ, so check both. Most states and territories now use the same categories as the EPBC Act (the Common Assessment Method). If the species is in another category (e.g. Near threatened, Rare, Priority or Special least concern), select “Not listed” and note the category under “Why is it important?”.",
+          guidance: "State/territory and federal status can differ, so check both. Most states and territories now use the same categories as the EPBC Act (the Common Assessment Method). If the species or community is in another category (e.g. Near threatened, Rare, Priority or Special least concern), select “Not listed” and note the category under “Why is it important?”. In Queensland, ecosystems are also given a biodiversity status as regional ecosystems (Endangered, Of concern, No concern at present); note this under “Why is it important?”.",
           moreInfo: "",
           links: [
             ["ACT threatened species", "https://www.act.gov.au/environment/animals-and-plants/act-threatened-species"],
@@ -188,10 +190,10 @@ window.APP_CONTENT = {
             ["Tasmania lists of threatened species", "https://nre.tas.gov.au/conservation/threatened-species-and-communities/lists-of-threatened-species"],
             ["Victoria FFG Act Threatened List", "https://www.environment.vic.gov.au/conserving-threatened-species/threatened-list"],
             ["WA threatened species and communities", "https://www.dbca.wa.gov.au/management/threatened-species-and-communities"] ] } },
-      { id: "monitoring", label: "Existing monitoring of the species (if any)", type: "textarea", rows: 3,
+      { id: "monitoring", label: "Existing monitoring of the species or ecosystem (if any)", type: "textarea", rows: 3,
         help: {
-          instructions: "List any monitoring of this species you know about: who does it, what is measured, where, and since when.",
-          examples: "Ranger group camera-trap surveys twice a year since 2019 (presence and number of individuals).\nUniversity or agency survey transects at nearby sites.\nCommunity sightings reported to the local council and wildlife carers.",
+          instructions: "List any monitoring of this species or ecosystem you know about: who does it, what is measured, where, and since when.",
+          examples: "Ranger group camera-trap surveys twice a year since 2019 (presence and number of individuals).\nVegetation condition plots measured every 3 years by the regional NRM body.\nUniversity or agency survey transects at nearby sites.\nCommunity sightings reported to the local council and wildlife carers.",
           guidance: "Existing monitoring can provide a baseline and help set triggers in Pathway planning. Note where the data is held and whether it can be shared. Monitoring at this particular site is recorded on the Site tab. State and territory species databases (see More information) show where the species has been recorded and by which surveys.",
           moreInfo: "",
           links: STATE_SPECIES_RECORDS } }
@@ -264,7 +266,7 @@ window.APP_CONTENT = {
             ["Tasmania – TASVEG vegetation mapping", "https://nre.tas.gov.au/conservation/development-planning-conservation-assessment/planning-tools/monitoring-and-mapping-tasmanias-vegetation-(tasveg)"],
             ["Victoria – NatureKit (Ecological Vegetation Classes)", "https://www.environment.vic.gov.au/biodiversity/naturekit"],
             ["WA – Pre-European vegetation (Beard mapping, DPIRD)", "https://catalogue.data.wa.gov.au/dataset/pre-european-dpird-006"] ] } },
-      { id: "sightings", label: "Sightings of species", type: "textarea", rows: 2,
+      { id: "sightings", label: "Sightings or records of the species or ecosystem", type: "textarea", rows: 2,
         help: {
           instructions: "Record recent sightings or signs of the species at or near the site: date, location, what was seen, and by whom.",
           examples: "12/08/2026 – adult female with joey in a creek-side gum (landholder).\nFresh scats under feed trees near the northern fence, October 2026.\nAtlas of Living Australia: 14 records within 2 km since 2015.",
@@ -359,7 +361,7 @@ window.APP_CONTENT = {
           examples: "Yes. Present: three heatwaves affected the site in the last five summers (landholder observations). Future: hazard maps show a large increase in hot days by 2050 under a high emissions scenario.\nNo. The site is at 900 m elevation, well above projected sea level rise and storm surge.",
           guidance: "Use the hazard maps for projections, and local observations and Bureau of Meteorology records for what is happening now. Note the time period (e.g. 2030, 2050) and emissions scenario you used. Upland sites may be less exposed to heat now but warming faster in relative terms.",
           moreInfo: null } },
-      { id: "impact", group: "Vulnerability", label: "How is the species impacted / affected by the hazard?",
+      { id: "impact", group: "Vulnerability", label: "How is the species or ecosystem impacted / affected by the hazard?",
         links: [["speciesAttributeTable", "Species attribute table"], ["recoveryPlansFederal", "Recovery plans (Federal)"], ["ala", "Atlas of Living Australia"]],
         popups: [{ label: "State and territory recovery plans", list: STATE_RECOVERY_PLANS }],
         help: {
@@ -373,7 +375,7 @@ window.APP_CONTENT = {
           examples: "Can move short distances to cooler gullies if connected forest is present, but cannot cross large cleared areas.\nCan switch to other food plants, but relies on a few key species during dry periods.\nLow ability: slow breeding (one young per year) means populations recover slowly after losses.",
           guidance: "Low ability to adapt means greater vulnerability. Key factors are mobility and habitat connectivity, diet flexibility, breeding rate, and whether there are cooler refuges (e.g. higher elevation) within reach. Also note barriers that stop the species adapting (roads, fences, clearing).",
           moreInfo: null } },
-      { id: "priority", group: "Priority", label: "How concerning is the hazard for this species in this area?",
+      { id: "priority", group: "Priority", label: "How concerning is the hazard for this species or ecosystem in this area?",
         help: {
           instructions: "Rate the priority of this hazard for this species at this site, from Very low to Very high, based on your exposure and vulnerability answers.",
           examples: "Very high – hazard already causing deaths or breeding failure and getting worse\nHigh – site exposed now or soon and species clearly sensitive, with limited ability to cope\nMedium – exposed, but moderate impact or some ability to cope\nLow – minor impact expected, or exposure unlikely before 2050\nVery low – not exposed or not relevant at this site",

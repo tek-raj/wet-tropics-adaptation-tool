@@ -224,9 +224,9 @@ window.OVERVIEW = {
   /* Steps of the planning process. Clicking a step card opens its details below the cards.
      about = what the step is for; doing = what you will do; tip = practical advice. */
   steps: [
-    { tab: "species", label: "Understand the species", text: "What it needs, why it matters, its conservation status.",
-      about: "Everything else in the plan builds on a clear picture of the species. Knowing what it needs to survive (food, water, shelter, breeding sites and a suitable temperature range) shows where climate change is likely to hurt it.",
-      doing: ["Record the common and scientific name, and the population if relevant.", "Describe its habitat, diet, home range and breeding needs.", "Note why it matters: ecologically, culturally and to the community.", "Check its federal and state or territory conservation status.", "List any existing monitoring."],
+    { tab: "species", label: "Understand the species or ecosystem", text: "What it needs, why it matters, its conservation status.",
+      about: "Everything else in the plan builds on a clear picture of the species or ecosystem. Knowing what it needs (for a species: food, water, shelter, breeding sites and a suitable temperature range; for an ecosystem: its water and fire regimes, key species and room to shift) shows where climate change is likely to hurt it.",
+      doing: ["Record the name: common and scientific names for a species, or the listed name or vegetation type for an ecosystem.", "Describe its habitat and key needs (for a species: diet, home range, breeding; for an ecosystem: structure, key species, water and fire regimes).", "Note why it matters: ecologically, culturally and to the community.", "Check its federal and state or territory conservation status, including threatened ecological community listings.", "List any existing monitoring."],
       tip: "Recovery plans and conservation advice are the best starting point. Traditional Owners and long-term landholders often hold knowledge that is not written down anywhere." },
     { tab: "site", label: "Describe the site or area", text: "A site, property, LGA or region: location, environment, people and existing plans.",
       about: "Climate risk depends on place. The same species can be safe in a cool, well-connected gully and highly exposed on a cleared, sunny edge. The assessment can cover a single site, a property, a Local Government Area (LGA) or a whole region; describing it also records who is involved and what is already planned.",

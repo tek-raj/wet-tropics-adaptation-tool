@@ -8,7 +8,7 @@
   const TABS = [
     { id: "overview", label: "Overview" },
     { id: "start", label: "Start" },
-    { id: "species", label: "Species" },
+    { id: "species", label: "Species / ecosystem" },
     { id: "site", label: "Site / area" },
     { id: "risk", label: "Risk assessment" },
     { id: "actions", label: "Actions" },
@@ -890,7 +890,7 @@
           h("div", { class: "action-num" }, num),
           h("div", { class: "action-fields" },
             field({ id: "text", label: "Action", type: "textarea", rows: 2, help: help }, a, "text"),
-            field({ id: "how", label: "How does this help the species adapt to climate change hazards?", type: "textarea", rows: 2, help: C.actions.howHelp }, a, "how")),
+            field({ id: "how", label: "How does this help the species or ecosystem adapt to climate change hazards?", type: "textarea", rows: 2, help: C.actions.howHelp }, a, "how")),
           h("div", { class: "action-side" },
             h("div", { class: "score-pill", title: "Score from the Scoring tab" }, h("small", null, "Score"), scoreText(a.id)),
             h("button", { type: "button", class: "icon-btn danger", title: "Remove action", onclick: () => {
@@ -1161,7 +1161,7 @@
         oninput: e => { S.photo = S.photo || {}; S.photo.credit = e.target.value; changed(); } }));
 
     el.append(h("div", { class: "summary-sheet" },
-      h("div", { class: "summary-title" }, plan.species.name || "Species name (set on the Species tab)"),
+      h("div", { class: "summary-title" }, plan.species.name || "Species or ecosystem name (set on the Species / ecosystem tab)"),
       h("div", { class: "summary-grid" },
         box("hazards"), box("longGoals"), box("shortGoals"),
         box("impacts"), photoBox, box("cultural"),

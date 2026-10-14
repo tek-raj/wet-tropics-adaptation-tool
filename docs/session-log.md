@@ -346,3 +346,8 @@
 ## 2026-10-14 — V3 renamed from "Site Assessment" to a planning tool; V3 pushed
 - Header subtitle: "Planning Tool · Version 3 (draft)" (was "Site Assessment"). Report page header: "Biodiversity Climate Adaptation Plan". Date and People present instructions now say "site visit or planning workshop". A separate site assessment tool will be developed later.
 - Committed and pushed V3 and this log. The V2 changes (LGA wording, ALA link) are still local only.
+## 2026-10-14 — V3 Species tab generalised to species or ecosystem; pushed
+- The user decided V3 is the only working version from now on (V1 and V2 are left as they are).
+- Tab "Species / ecosystem", title "Species or ecosystem details". Labels: "Species or ecosystem name", "Habitat, ecosystem and key needs", "Existing monitoring of the species or ecosystem", "Conservation status — State or territory (Threatened species or ecological community list)". Instructions, examples and guidance cover ecosystems (Mabi forest, coastal saltmarsh, alpine bogs, regional ecosystem / plant community type codes), with an EPBC threatened ecological communities link (DCCEEW). The Qld note covers regional ecosystem biodiversity status.
+- Elsewhere: Start plan focus adds "Ecosystem or ecological community"; Site "Sightings or records of the species or ecosystem"; Risk impact and priority labels; the Actions "How does this help the species or ecosystem…" label (app and reports); the Summary placeholder; the Overview step; the report section heading now uses the tab title.
+- Field ids unchanged (species.name, habitat, …), so plan files still load. Tests pass.

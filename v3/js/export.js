@@ -145,7 +145,7 @@
       metaLine ? new D.Paragraph({ spacing: { after: 120 }, children: [new D.TextRun({ text: metaLine, size: 18, color: "555555" })] }) : null,
       m.meta.focus ? new D.Paragraph({ spacing: { after: 60 }, children: [new D.TextRun({ text: "Plan focus: ", bold: true, size: 20 }), new D.TextRun({ text: m.meta.focus, size: 20 })] }) : null,
       m.meta.purpose ? new D.Paragraph({ spacing: { after: 200 }, children: [new D.TextRun({ text: "Purpose: ", bold: true, size: 20 }), new D.TextRun({ text: m.meta.purpose, size: 20 })] }) : null,
-      h2("Species details"), kv(m.speciesRows, 2900),
+      h2(C.species.title), kv(m.speciesRows, 2900),
       h2(C.site.title), kv(m.siteRows, 2900)
     ].filter(Boolean);
 
@@ -165,7 +165,7 @@
     // --- page 3: actions
     const aw = [600, 5200, 6770, 2000];
     const actTable = (title, list) => {
-      const rows = [row([hdrCell(title, aw[0] + aw[1], { colSpan: 2 }), hdrCell("How does this help the species adapt to climate change hazards?", aw[2]),
+      const rows = [row([hdrCell(title, aw[0] + aw[1], { colSpan: 2 }), hdrCell("How does this help the species or ecosystem adapt to climate change hazards?", aw[2]),
         hdrCell("Score out of 21 (see scoring table)", aw[3])], { header: true })];
       (list.length ? list : [{ num: "", text: "", how: "", score: "" }]).forEach(a => rows.push(row([
         cell(String(a.num), { width: aw[0] }), cell(a.text, { width: aw[1] }), cell(a.how, { width: aw[2] }), cell(a.score, { width: aw[3] })], { minH: 520, cantSplit: true })));
@@ -339,7 +339,7 @@
       metaLine ? { text: metaLine, fontSize: 9, color: "#555", margin: [0, 0, 0, 6] } : "",
       m.meta.focus ? { text: [{ text: "Plan focus: ", bold: true }, m.meta.focus], margin: [0, 0, 0, 3] } : "",
       m.meta.purpose ? { text: [{ text: "Purpose: ", bold: true }, m.meta.purpose], margin: [0, 0, 0, 6] } : "",
-      h2("Species details"), kv(m.speciesRows),
+      h2(C.species.title), kv(m.speciesRows),
       h2(C.site.title), kv(m.siteRows)
     ];
 
@@ -358,7 +358,7 @@
 
     // actions
     const actTable = (title, list) => {
-      const body = [[hc(title, { colSpan: 2 }), {}, hc("How does this help the species adapt to climate change hazards?"), hc("Score out of 21 (see scoring table)")]];
+      const body = [[hc(title, { colSpan: 2 }), {}, hc("How does this help the species or ecosystem adapt to climate change hazards?"), hc("Score out of 21 (see scoring table)")]];
       (list.length ? list : [{}]).forEach(a => body.push([tx(a.num), a.text ? tx(a.text) : empty(1, 2), tx(a.how), tx(a.score)]));
       return { table: { headerRows: 1, widths: [18, 220, "*", 90], dontBreakRows: true, body }, layout: lines };
     };
