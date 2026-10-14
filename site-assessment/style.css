@@ -1,0 +1,86 @@
+/* Site assessment app – phone and tablet first; colours match the planning tool */
+:root {
+  --green: #1f5f4a; --green-dark: #164536; --green-soft: #e8efea; --green-tint: #f4f7f5;
+  --ink: #1d2622; --muted: #5b6862; --line: #d3dcd7; --bg: #f6f8f7; --card: #fff;
+  --amber: #8a5a00; --amber-bg: #fff3c4; --danger: #b3261e; --radius: 12px;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+a { color: var(--green); }
+button, input, textarea, select { font: inherit; color: inherit; }
+
+/* header */
+.sa-header { position: sticky; top: 0; z-index: 10; background: var(--green); color: #fff;
+  padding: calc(10px + env(safe-area-inset-top)) 16px 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.sa-brand { display: flex; align-items: center; gap: 10px; }
+.sa-brand img { border-radius: 8px; }
+.sa-title { font-weight: 700; font-size: 1.1rem; line-height: 1.2; }
+.sa-sub { font-size: .75rem; opacity: .85; }
+.sa-net { font-size: .75rem; background: rgba(255,255,255,.18); padding: 3px 10px; border-radius: 999px; }
+.sa-main { max-width: 820px; margin: 0 auto; padding: 16px 16px calc(110px + env(safe-area-inset-bottom)); }
+
+/* buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 46px; padding: 10px 18px; border-radius: 10px;
+  border: 2px solid var(--green); background: #fff; color: var(--green); font-weight: 600; cursor: pointer; text-decoration: none; }
+.btn.primary { background: var(--green); color: #fff; }
+.btn.ghost { border-color: var(--line); color: var(--ink); }
+.btn.danger { border-color: #e7b4b0; color: var(--danger); }
+.btn.small { min-height: 38px; padding: 6px 12px; font-size: .9rem; }
+.btn:disabled { opacity: .5; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.link-btn { background: none; border: 0; padding: 4px 0; color: var(--green); text-decoration: underline; cursor: pointer; font-weight: 600; }
+
+/* cards and lists */
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; }
+.card h2 { margin: 0 0 8px; font-size: 1.15rem; }
+.note { color: var(--muted); font-size: .88rem; }
+.tip { background: var(--green-tint); border: 1px solid #c5d5cc; border-left: 5px solid var(--green); border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; font-size: .92rem; }
+.tip b { color: var(--green-dark); }
+.tip .btn-row { margin-top: 8px; }
+.empty { text-align: center; color: var(--muted); padding: 26px 10px; }
+.sa-item { display: grid; gap: 6px; }
+.sa-item-title { font-weight: 700; font-size: 1.05rem; }
+.sa-item-meta { color: var(--muted); font-size: .88rem; }
+.badge { display: inline-block; font-size: .78rem; font-weight: 700; padding: 2px 10px; border-radius: 999px; }
+.badge.ok { background: var(--green-soft); color: var(--green-dark); }
+.badge.warn { background: var(--amber-bg); color: var(--amber); }
+
+/* form */
+.sa-back { margin-bottom: 10px; }
+.sa-section { margin: 22px 0 10px; font-size: .8rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--green); }
+.sa-intro { color: var(--muted); font-size: .92rem; margin: 0 0 6px; }
+.field { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 12px; }
+.field-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.field-label { font-weight: 700; }
+.info-btn { flex: none; width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--green); background: #fff; color: var(--green);
+  font: italic 700 1rem Georgia, serif; cursor: pointer; }
+.info-btn[aria-expanded="true"] { background: var(--green); color: #fff; }
+.help { background: var(--green-tint); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; font-size: .9rem; }
+.help h4 { margin: 8px 0 2px; font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.help h4:first-child { margin-top: 0; }
+.help p { margin: 0; white-space: pre-line; }
+.help ul { margin: 2px 0 0; padding-left: 18px; }
+textarea, input[type=text], input[type=date] { width: 100%; border: 1px solid #b9c6bf; border-radius: 8px; padding: 10px 12px; background: #fff; font-size: 16px; }
+textarea { min-height: 84px; resize: vertical; }
+textarea:focus, input:focus { outline: 3px solid rgba(31,95,74,.25); border-color: var(--green); }
+.gps-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; align-items: center; }
+.gps-status { font-size: .85rem; color: var(--muted); }
+
+/* photos */
+.photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
+.photo { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #fff; display: flex; flex-direction: column; }
+.photo img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; background: #eee; }
+.photo textarea { border: 0; border-top: 1px solid var(--line); border-radius: 0; min-height: 56px; font-size: .9rem; }
+.photo .photo-bar { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px; font-size: .75rem; color: var(--muted); }
+.photo-add { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* bottom bar (save / share) */
+.sa-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: #fff; border-top: 1px solid var(--line);
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); box-shadow: 0 -4px 14px rgba(0,0,0,.06); }
+.sa-bar-inner { max-width: 820px; margin: 0 auto; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.sa-bar .status { font-size: .82rem; color: var(--muted); flex: 1 1 160px; }
+.sa-bar .btn { flex: 0 0 auto; }
+
+@media (min-width: 700px) { .sa-main { padding-top: 22px; } }

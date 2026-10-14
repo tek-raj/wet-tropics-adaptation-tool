@@ -783,7 +783,13 @@
     el.append(card);
   };
   R.species = simpleTab("species");
-  R.site = el => { simpleTab("site")(el); el.append(sitePhotosCard()); };
+  R.site = el => {
+    simpleTab("site")(el);
+    // "Import a site assessment" (from the Site assessment app or Fulcrum) goes just under the heading
+    const head = el.querySelector(".section-head");
+    if (window.SiteImport && head) head.after(window.SiteImport.card());
+    el.append(sitePhotosCard());
+  };
 
   /* Site photos: uploaded on the Site tab, printed as an appendix in the reports */
   function sitePhotosCard() {
@@ -1329,7 +1335,7 @@
     C.pathway.fields.forEach(f => grid.append(field(f, p, f.id, { onChange, idPrefix: "pb-" })));
     return grid;
   };
-  window.AppAPI = { h, uid, changed, allActions, namedActions, pathwayActionName, pathwayForm, getPlan: () => plan,
+  window.AppAPI = { h, uid, changed, allActions, namedActions, pathwayActionName, pathwayForm, readPhoto, helpPanel, helpButton, getPlan: () => plan,
     // used by the merge tool: replace the whole plan, save it and redraw
     replacePlan: p => { plan = migrate(p); changed(); render(); } };
   document.addEventListener("DOMContentLoaded", init);

@@ -183,7 +183,7 @@
     paint();
     overlay.append(h("div", { class: "mg-box" },
       h("h2", { id: "mg-title" }, "Review differences (" + conflicts.length + ")"),
-      h("p", { class: "note" }, "These boxes have different answers in the plans you are merging. Choose what to keep for each one. Everything else has already been combined."),
+      h("p", { class: "note" }, "These boxes have different answers in your plan and the file you are adding. Choose what to keep for each one. Everything else has already been combined."),
       h("div", { class: "btn-row mg-bulk" },
         h("span", { class: "note" }, "For all:"),
         h("button", { type: "button", class: "btn ghost small", onclick: () => setAll("mine") }, "Keep mine"),
@@ -197,15 +197,16 @@
     overlay.querySelector("button").focus();
   }
 
-  function resultDialog(text) {
+  function resultDialog(text, opts) {
+    opts = opts || {};
     const overlay = h("div", { class: "mg-overlay", role: "dialog", "aria-modal": "true" });
     overlay.append(h("div", { class: "mg-box small" },
-      h("h2", null, "Merge complete"),
+      h("h2", null, opts.title || "Merge complete"),
       h("ul", { class: "mg-summary" }, text.map(t => h("li", null, t))),
-      h("p", { class: "note" }, "Check the tabs to see the combined plan. Text kept from both people is marked “[From name]” so you can tidy it up."),
+      h("p", { class: "note" }, opts.note || "Check the tabs to see the combined plan. Text kept from both people is marked “[From name]” so you can tidy it up."),
       h("div", { class: "btn-row" },
         h("button", { type: "button", class: "btn primary", onclick: () => overlay.remove() }, "OK"),
-        h("button", { type: "button", class: "btn ghost", onclick: () => { overlay.remove(); undo(); } }, "Undo merge"))));
+        h("button", { type: "button", class: "btn ghost", onclick: () => { overlay.remove(); undo(); } }, opts.undoLabel || "Undo merge"))));
     document.body.append(overlay);
     overlay.querySelector("button").focus();
   }
@@ -227,6 +228,13 @@
         incoming.push({ p, source: (p.start && p.start.preparedBy || "").trim() || f.name.replace(/\.adaptplan\.json$|\.json$/i, "") });
       } catch (e) { alert(f.name + " could not be read. Choose plan files saved from this tool (.adaptplan.json)."); return; }
     }
+    mergePlans(incoming);
+  }
+
+  // Merge already-read plans (or partial plans, e.g. an imported site assessment) into the open plan.
+  // opts: { title, note, undoLabel, lines(stats) } for the result dialog.
+  function mergePlans(incoming, opts) {
+    opts = opts || {};
     lastSnapshot = JSON.stringify(A().getPlan());
     const base = JSON.parse(lastSnapshot);
     const conflicts = [], stats = { filled: 0, actions: 0, hazards: 0, pathways: 0, photos: 0, mapLines: 0 };
@@ -236,7 +244,7 @@
       A().replacePlan(base);
       const who = incoming.map(x => x.source).join(", ");
       const n2 = (n, one, many) => n + " " + (n === 1 ? one : many);
-      const lines = ["Merged from: " + who,
+      const lines = opts.lines ? opts.lines(stats, who) : ["Merged from: " + who,
         n2(stats.filled, "empty box filled", "empty boxes filled"), n2(stats.actions, "action added", "actions added"),
         n2(stats.pathways, "pathway added", "pathways added"), n2(stats.photos, "photo added", "photos added"),
         n2(stats.hazards, "hazard added", "hazards added"), n2(stats.mapLines, "pathway-map line added", "pathway-map lines added")];
@@ -244,7 +252,7 @@
         const n = k => choices.filter(c => c === k).length;
         lines.push(choices.length + " differences reviewed: " + n("mine") + " kept yours, " + n("theirs") + " used theirs, " + n("both") + " kept both, " + n("average") + " averaged");
       }
-      resultDialog(lines);
+      resultDialog(lines, opts);
     };
     if (conflicts.length) review(conflicts, finish); else finish([]);
   }
@@ -268,5 +276,5 @@
     input.addEventListener("change", e => { const fs = Array.from(e.target.files || []); e.target.value = ""; mergeFiles(fs); });
   });
 
-  window.MergeTool = { mergeFiles, startCard, undo, _mergeOne: mergeOne };
+  window.MergeTool = { mergeFiles, mergePlans, startCard, undo, _mergeOne: mergeOne };
 })();

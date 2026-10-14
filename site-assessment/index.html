@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Site Assessment</title>
+  <meta name="description" content="Offline site assessment form for biodiversity climate adaptation planning. Works on phones and tablets without signal.">
+  <meta name="theme-color" content="#1f5f4a">
+  <!-- Installable app (Add to Home Screen) -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Site Assess">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="icons/favicon-64.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="sa-header">
+    <div class="sa-brand">
+      <img src="icons/icon-192.png" alt="" width="34" height="34">
+      <div>
+        <div class="sa-title">Site Assessment</div>
+        <div class="sa-sub">Biodiversity Climate Adaptation Planning · Version 1 (draft)</div>
+      </div>
+    </div>
+    <span class="sa-net" id="netStatus" hidden>Offline – everything still works</span>
+  </header>
+  <main id="app" class="sa-main" aria-live="polite"></main>
+  <noscript><p class="sa-main">This app needs JavaScript turned on.</p></noscript>
+
+  <!-- Questions and help are shared with the planning tool -->
+  <script src="../v3/js/content.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

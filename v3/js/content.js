@@ -216,6 +216,12 @@ window.APP_CONTENT = {
       guidance: "Complete this tab on or soon after the site visit, while details are fresh. Where the site is on Aboriginal land or a place of cultural significance, agree with Traditional Owners what location detail can be recorded and shared.",
       moreInfo: "" },
     fields: [
+      { id: "assessDate", label: "Date of site assessment", type: "date",
+        help: {
+          instructions: "The date of the site visit or site assessment, in DD/MM/YYYY format. Filled in automatically when a site assessment is imported.",
+          examples: "14/10/2026",
+          guidance: "An existing site assessment (e.g. a cultural assessment) can be used. Record its date here and add any missing details below.",
+          moreInfo: null } },
       { id: "scale", label: "Scale of assessment", type: "select",
         options: ["Site", "Property", "Local Government Area (LGA)", "Region or catchment", "Other"],
         help: {
@@ -266,6 +272,12 @@ window.APP_CONTENT = {
             ["Tasmania – TASVEG vegetation mapping", "https://nre.tas.gov.au/conservation/development-planning-conservation-assessment/planning-tools/monitoring-and-mapping-tasmanias-vegetation-(tasveg)"],
             ["Victoria – NatureKit (Ecological Vegetation Classes)", "https://www.environment.vic.gov.au/biodiversity/naturekit"],
             ["WA – Pre-European vegetation (Beard mapping, DPIRD)", "https://catalogue.data.wa.gov.au/dataset/pre-european-dpird-006"] ] } },
+      { id: "condition", label: "Current condition", type: "textarea", rows: 3,
+        help: {
+          instructions: "Describe the current condition of the site and the habitat or ecosystem: health of vegetation, signs of damage or stress, weeds, pests, erosion, water levels and recent disturbance. Add photos (Site photos below).",
+          examples: "Canopy mostly intact; some trees on the western edge show heat scorch from last summer.\nLantana and guinea grass along the creek bank; feral pig diggings near the spring.\nCreek flowing but lower than usual for October.",
+          guidance: "Describe what you see now, so later visits can show change. Photos from photo monitoring points are especially useful. Note anything that could make the site more vulnerable to climate hazards (e.g. weeds that carry fire, bare ground that erodes in floods).",
+          moreInfo: null } },
       { id: "sightings", label: "Sightings or records of the species or ecosystem", type: "textarea", rows: 2,
         help: {
           instructions: "Record recent sightings or signs of the species at or near the site: date, location, what was seen, and by whom.",
@@ -313,6 +325,33 @@ window.APP_CONTENT = {
           guidance: "Traditional Owner seasonal calendars often describe these cycles in detail and may show changes already happening. Seasonal timing affects when actions can be done, e.g. planting when soils are moist and weed control before weeds set seed.",
           moreInfo: "https://www.csiro.au/en/research/indigenous-science/indigenous-knowledge/calendars" } }
     ]
+  },
+
+  /* ---------------- SITE ASSESSMENT (field app and import) ----------------
+     Used by the offline Site assessment app (site-assessment/) and by "Import a site assessment" on the Site tab.
+     Questions and help come from site.fields above (same ids). Order follows the site assessment template. */
+  siteAssessment: {
+    title: "Site assessment",
+    intro: "Best done at the site. This can be an existing site assessment (e.g. a cultural assessment); if any of these details are missing, add them if possible.",
+    fileFormat: "site-assessment",          // "format" value in files saved by the app
+    fileExt: ".siteassess.json",
+    sections: [
+      { title: "Date", fields: ["assessDate"] },
+      { title: "Part 1 – Site location and description",
+        fields: ["placeName", "gps", "propertyName", "propertyContact", "environment", "condition", "sightings",
+                 "mgmtPlans", "monitoring", "photoPoints", "reason", "people"] },
+      { title: "Optional", fields: ["seasonal"] }
+    ],
+    // Field names (Fulcrum "data names") for the same questions, for teams using Fulcrum.
+    // The record's location is used for GPS; photos come from the photo field.
+    fulcrum: {
+      assessDate: "assessment_date", placeName: "place_name", gps: "gps", propertyName: "property_name",
+      propertyContact: "property_contact", environment: "environment_description", condition: "current_condition",
+      sightings: "species_sightings", mgmtPlans: "management_plans", monitoring: "existing_monitoring",
+      photoPoints: "photo_monitoring_points", reason: "assessment_reason", people: "people_present",
+      seasonal: "seasonal_calendar_notes",
+      photos: "condition_photos"
+    }
   },
 
   /* ---------------- TAB 3: RISK ASSESSMENT ---------------- */
