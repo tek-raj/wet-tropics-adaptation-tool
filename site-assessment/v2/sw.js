@@ -3,9 +3,9 @@
  * Files are served from the device first; when online, a fresh copy is fetched in the background
  * so the next launch gets any update. Change CACHE to force every device to start over.
  */
-const CACHE = "site-recording-v1";
+const CACHE = "site-recording-v2";
 const FILES = [
-  "./", "./index.html", "./app.js", "./form.js", "./style.css", "./manifest.webmanifest",
+  "./", "./index.html", "./app.js", "./form.js", "./cultural.js", "./style.css", "./manifest.webmanifest",
   "../style.css",                           // shared look with the site assessment app
   "../icons/icon-192.png", "../icons/icon-512.png", "../icons/icon-maskable-512.png",
   "../icons/apple-touch-icon.png", "../icons/favicon-64.png"

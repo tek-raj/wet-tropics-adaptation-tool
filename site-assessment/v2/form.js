@@ -1,11 +1,13 @@
 /*
  * SITE RECORDING SHEET – questions, in the order of the paper form ("Site recording form.pdf", 4 pages).
+ * Shown on the "Site assessment" tab; the "Cultural assessment" tab is in cultural.js.
  * Field types: text, date, textarea, yesno, checks (tick boxes; options may ask for a detail, and an
  * "other" option asks what), gps (adds "Use my location"), photos (adds camera and captions).
  * showIf: { field: value } shows a question only when another question has that answer.
  */
 window.SITE_RECORDING = {
-  title: "Site recording sheet",
+  title: "Site assessment",
+  printTitle: "Site recording sheet",
   intro: "Record the site while you are there. Answer what you can; every question is optional and you can come back to it later.",
   sensitive: "This record may hold culturally sensitive information, such as the location of burials or story places. Share the file only with people the Traditional Owners have agreed can see it.",
   fileFormat: "site-recording",          // "format" value in files saved by the app

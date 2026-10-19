@@ -1,7 +1,7 @@
 {
-  "name": "Site Recording – Site recording sheet",
+  "name": "Site & Cultural Assessment",
   "short_name": "Site Record",
-  "description": "Offline Site Recording Sheet. Saves a file to share, or prints a paper/PDF copy.",
+  "description": "Offline site assessment and cultural site monitoring. Saves a file to share, or prints a paper/PDF copy.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
