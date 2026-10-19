@@ -17,7 +17,8 @@ self.addEventListener("install", e => {
 
 self.addEventListener("activate", e => {
   e.waitUntil(caches.keys()
-    .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+    // only clear this app's old copies; the site recording app (v2/) keeps its own
+    .then(keys => Promise.all(keys.filter(k => k.startsWith("site-assessment-") && k !== CACHE).map(k => caches.delete(k))))
     .then(() => self.clients.claim()));
 });
 

@@ -1,0 +1,38 @@
+/* Site recording app (version 2): extras on top of ../style.css */
+.sensitive { background: var(--amber-bg); color: var(--amber); border-radius: 8px; padding: 8px 12px; font-size: .86rem; margin: 8px 0; }
+.hint { margin: 0 0 6px; }
+.follow-up { margin-left: 18px; border-left: 4px solid var(--green-soft); }
+
+/* Yes / No */
+.choice-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.chip { min-height: 44px; min-width: 90px; padding: 8px 18px; border-radius: 999px; border: 2px solid var(--line); background: #fff; font-weight: 600; cursor: pointer; }
+.chip[aria-checked="true"] { background: var(--green); border-color: var(--green); color: #fff; }
+
+/* tick boxes */
+.checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 8px; }
+.check { border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+.check label { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 8px 12px; cursor: pointer; }
+.check input[type=checkbox] { width: 22px; height: 22px; flex: none; accent-color: var(--green); margin: 0; }
+.check:has(input:checked) { border-color: var(--green); background: var(--green-tint); }
+.check .check-extra { width: calc(100% - 16px); margin: 0 8px 8px; padding: 8px 10px; }
+
+/* print / PDF */
+.print-sheet { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }
+.print-sheet h1 { margin: 0; font-size: 1.4rem; }
+.print-title { font-size: 1.1rem; font-weight: 700; margin: 4px 0 8px; }
+.print-sheet h2 { font-size: .85rem; letter-spacing: .05em; text-transform: uppercase; color: var(--green); border-bottom: 1px solid var(--line); padding-bottom: 4px; margin: 20px 0 8px; }
+.print-sheet dl { margin: 0; display: grid; grid-template-columns: minmax(140px, 34%) 1fr; gap: 6px 14px; }
+.print-sheet dt { font-weight: 600; color: var(--muted); }
+.print-sheet dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.print-photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.print-photos figure { margin: 0; break-inside: avoid; }
+.print-photos img { width: 100%; border-radius: 6px; display: block; }
+.print-photos figcaption { font-size: .85rem; margin-top: 4px; }
+@media (max-width: 520px) { .print-sheet dl { grid-template-columns: 1fr; } .print-sheet dd { margin-bottom: 6px; } }
+@media print {
+  .sa-header, .sa-bar, .no-print, .tip { display: none !important; }
+  body { background: #fff; font-size: 11pt; }
+  .sa-main { padding: 0; max-width: none; }
+  .print-sheet { border: 0; padding: 0; }
+  .print-sheet h2 { break-after: avoid; }
+}

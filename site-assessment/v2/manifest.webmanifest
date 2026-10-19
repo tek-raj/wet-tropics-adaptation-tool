@@ -1,0 +1,16 @@
+{
+  "name": "Site Recording – Site recording sheet",
+  "short_name": "Site Record",
+  "description": "Offline Site Recording Sheet. Saves a file to share, or prints a paper/PDF copy.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f6f8f7",
+  "theme_color": "#1f5f4a",
+  "icons": [
+    { "src": "../icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "../icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "../icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
