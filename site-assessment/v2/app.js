@@ -16,6 +16,8 @@
   ];
   FORMS.forEach(m => { m.fields = m.def.sections.flatMap(s => s.fields); });
   const app = document.getElementById("app");
+  // help for questions that fill the planning tool's Site tab (from its content file, so both stay the same)
+  const PLAN_FIELD = Object.fromEntries(((window.APP_CONTENT || {}).site || { fields: [] }).fields.map(f => [f.id, f]));
 
   /* ---------- small helpers ---------- */
   function h(tag, attrs, ...kids) {
@@ -214,6 +216,16 @@
   }
 
   /* ---------- the form ---------- */
+  // the help panel behind the "i" button (same layout as the first Site assessment app)
+  function helpBlock(help) {
+    const links = (help.moreInfo ? [["More information", help.moreInfo]] : []).concat(help.moreInfo === null ? [] : (help.links || []));
+    return h("div", { class: "help", hidden: true },
+      help.instructions ? [h("h4", null, "Instructions"), h("p", null, help.instructions)] : null,
+      help.examples ? [h("h4", null, "Examples"), h("p", null, help.examples)] : null,
+      help.guidance ? [h("h4", null, "Guidance"), h("p", null, help.guidance)] : null,
+      links.length ? [h("h4", null, "More information"), h("ul", null, links.map(([l, u]) => h("li", null, h("a", { href: u, target: "_blank", rel: "noopener" }, l + " ↗"))))] : null);
+  }
+
   function edit(rec) {
     view = "form";
     ready(rec);
@@ -265,8 +277,14 @@
         else body = textInput(f.id, { id: inputId, placeholder: f.placeholder });
         const group = ["yesno", "choice", "checks", "photos", "table", "signoff"].includes(f.type);
         const labelEl = group ? h("div", { class: "field-label", id: inputId + "-label" }, f.label) : h("label", { class: "field-label", for: inputId }, f.label);
-        const box = h("div", { class: "field" + (f.showIf ? " follow-up" : "") }, h("div", { class: "field-head" }, labelEl),
-          f.hint && f.type !== "gps" ? h("p", { class: "note hint" }, f.hint) : null, body);
+        // questions used by the planning tool: a tag, and the same help as the planning tool ("i" button)
+        const pf = f.plan && PLAN_FIELD[f.plan], help = pf && pf.help ? helpBlock(pf.help) : null;
+        const info = help ? h("button", { type: "button", class: "info-btn", "aria-expanded": "false", "aria-label": "Help for " + f.label,
+          onclick: () => { help.hidden = !help.hidden; info.setAttribute("aria-expanded", String(!help.hidden)); } }, "i") : null;
+        const box = h("div", { class: "field" + (f.showIf ? " follow-up" : "") },
+          h("div", { class: "field-head" }, h("div", { class: "field-title" }, labelEl,
+            f.plan ? h("span", { class: "plan-tag", title: "Imported into the planning tool’s Site tab" + (pf && pf.label !== f.label ? " (“" + pf.label + "”)" : "") }, "Planning tool") : null), info),
+          help, f.hint && f.type !== "gps" ? h("p", { class: "note hint" }, f.hint) : null, body);
         if (f.showIf) box.hidden = !visible(f, D);
         boxes[f.id] = box;
         return box;

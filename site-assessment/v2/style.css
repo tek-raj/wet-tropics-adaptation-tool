@@ -72,3 +72,7 @@
 .ptable th { background: var(--green-tint); }
 .psig { height: 40px; width: auto; display: block; }
 @media print { .page-break { break-before: page; } .print-sheet + .print-sheet { margin-top: 0; } }
+
+/* questions that fill the planning tool's Site tab */
+.field-title { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; }
+.plan-tag { font-size: .7rem; font-weight: 700; letter-spacing: .03em; color: var(--green-dark); background: var(--green-soft); border-radius: 999px; padding: 1px 8px; }
