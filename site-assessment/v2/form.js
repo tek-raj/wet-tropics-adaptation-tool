@@ -1,6 +1,5 @@
 /*
  * SITE RECORDING SHEET – questions, in the order of the paper form ("Site recording form.pdf", 4 pages).
- * Shown on the "Site assessment" tab; the "Cultural assessment" tab is in cultural.js.
  * Field types: text, date, textarea, yesno, checks (tick boxes; options may ask for a detail, and an
  * "other" option asks what), gps (adds "Use my location"), photos (adds camera and captions).
  * showIf: { field: value } shows a question only when another question has that answer.

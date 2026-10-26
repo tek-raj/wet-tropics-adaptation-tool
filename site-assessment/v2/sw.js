@@ -3,9 +3,9 @@
  * Files are served from the device first; when online, a fresh copy is fetched in the background
  * so the next launch gets any update. Change CACHE to force every device to start over.
  */
-const CACHE = "site-recording-v3";
+const CACHE = "site-recording-v4";   // v4: cultural assessment removed
 const FILES = [
-  "./", "./index.html", "./app.js", "./form.js", "./cultural.js", "./style.css", "./manifest.webmanifest",
+  "./", "./index.html", "./app.js", "./form.js", "./style.css", "./manifest.webmanifest",
   "../style.css",                           // shared look with the site assessment app
   "../../v3/js/content.js",                 // help for the planning tool questions, shared with the planning tool
   "../icons/icon-192.png", "../icons/icon-512.png", "../icons/icon-maskable-512.png",

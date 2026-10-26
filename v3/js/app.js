@@ -458,7 +458,7 @@
     return [
       { id: "plan", title: "1. Plan and species", body: () => [
         kv([["Plan title", E.start.planTitle], ["Plan focus", E.start.planFocus], ["Purpose", E.start.purpose],
-            ["Species", E.species.name], ["Habitat and needs", E.species.habitat], ["Why it matters", E.species.importance],
+            ["Species", E.species.name], ["Habitat and needs", E.species.habitat], ["Personality and behaviour", E.species.personality], ["Why it matters", E.species.importance],
             ["Status", "Federal (EPBC): " + E.species.epbc + " · " + (E.species.state || "State or territory") + ": " + E.species.qld]])] },
       { id: "site", title: "2. Site", body: () => [
         h("p", { class: "ex-note" }, "The site is illustrative."),

@@ -142,6 +142,12 @@ window.APP_CONTENT = {
             ["Recovery plans and conservation advice (DCCEEW)", "https://www.dcceew.gov.au/environment/biodiversity/threatened/recovery-plans"],
             ["Threatened species literature reviews (TERN EMSA)", "https://emsa.tern.org.au/threatened-species-resources#Literature-Reviews"],
             ["EPBC threatened ecological communities (DCCEEW)", "https://www.dcceew.gov.au/environment/biodiversity/threatened/communities"] ] } },
+      { id: "personality", label: "Personality and behaviour of the species", type: "textarea", rows: 3,
+        help: {
+          instructions: "Describe how the species typically behaves: shy or bold, social or solitary, active by day or night, territorial, loyal to particular sites, and how it reacts to people, noise and disturbance. For an ecosystem, leave this blank or note the behaviour of its key species.",
+          examples: "Highly social; roosts in large, noisy colonies and returns to the same roost sites each year. Easily disturbed at the roost, especially while raising young.\nShy and solitary; mostly active at night; avoids open ground and people.\nBold and curious; quickly gets used to people, which leads to road strike and dog attacks.",
+          guidance: "Behaviour affects both how the species copes with climate hazards and which actions will work. For example, a species that is loyal to one roost or nest site may not move away from a site that is becoming too hot; a shy species may abandon a site after works or monitoring; a species that tolerates people may be easier to monitor but more exposed to cars and pets. Local and Traditional Owner knowledge is often the best source.",
+          moreInfo: null } },
       { id: "importance", label: "Why is it important?", type: "textarea", rows: 3,
         help: {
           instructions: "Explain why this species or ecosystem matters: to Traditional Owners, to the community, to other species and ecosystems, and for conservation.",
@@ -196,7 +202,14 @@ window.APP_CONTENT = {
           examples: "Ranger group camera-trap surveys twice a year since 2019 (presence and number of individuals).\nVegetation condition plots measured every 3 years by the regional NRM body.\nUniversity or agency survey transects at nearby sites.\nCommunity sightings reported to the local council and wildlife carers.",
           guidance: "Existing monitoring can provide a baseline and help set triggers in Pathway planning. Note where the data is held and whether it can be shared. Monitoring at this particular site is recorded on the Site tab. State and territory species databases (see More information) show where the species has been recorded and by which surveys.",
           moreInfo: "",
-          links: STATE_SPECIES_RECORDS } }
+          links: STATE_SPECIES_RECORDS } },
+      // Same question as on the Site tab, but about the species or ecosystem's own yearly cycle (saved separately)
+      { id: "seasonal", label: "Seasonal calendar notes", type: "textarea", rows: 3,
+        help: {
+          instructions: "Note the seasonal events in the life of the species or ecosystem: breeding, nesting or birthing, when young are most dependent, migration or movement, flowering and fruiting, and times of year when it is most at risk from heat, storms, drought or fire.",
+          examples: "Pups born October–December; young depend on their mothers until about March.\nPeak heat-stress risk November–February.\nFood shortages for several months after a cyclone (January–April).\nSaltmarsh: highest tides and storm surges in the summer king-tide season.",
+          guidance: "Traditional Owner seasonal calendars often describe these cycles in detail and may show changes already happening (e.g. flowering earlier). Knowing when the species is most vulnerable helps set triggers and the timing of actions on later tabs. Seasonal events that affect the site itself (access, fire season, wet season) can be noted on the Site tab.",
+          moreInfo: "https://www.csiro.au/en/research/indigenous-science/indigenous-knowledge/calendars" } }
     ]
   },
 

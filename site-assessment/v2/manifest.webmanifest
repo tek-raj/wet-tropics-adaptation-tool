@@ -1,7 +1,7 @@
 {
-  "name": "Site & Cultural Assessment",
+  "name": "Site Assessment",
   "short_name": "Site Record",
-  "description": "Offline site assessment and cultural site monitoring. Saves a file to share, or prints a paper/PDF copy.",
+  "description": "Offline site assessment (site recording sheet). Saves a file to import into the planning tool, or prints a paper/PDF copy.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

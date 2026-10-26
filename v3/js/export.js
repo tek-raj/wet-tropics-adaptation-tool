@@ -22,9 +22,11 @@
     const speciesRows = [
       [fieldLabel("species", "name"), s(sp.name)],
       [fieldLabel("species", "habitat"), s(sp.habitat)],
+      [fieldLabel("species", "personality"), s(sp.personality)],
       [fieldLabel("species", "importance"), s(sp.importance)],
       ["Conservation status", status.join("\n")],
-      [fieldLabel("species", "monitoring"), s(sp.monitoring)]
+      [fieldLabel("species", "monitoring"), s(sp.monitoring)],
+      [fieldLabel("species", "seasonal"), s(sp.seasonal)]
     ];
     const siteRows = C.site.fields.map(f => [f.label, s(st[f.id])]);
 

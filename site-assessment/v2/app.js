@@ -1,18 +1,15 @@
 /*
  * SITE RECORDING APP (version 2 of the site assessment app)
- * An offline form for phones and tablets. Each record has two tabs:
- *   Site assessment     – the Site Recording Sheet (form.js)
- *   Cultural assessment – the Cultural Site Monitoring & Reporting Form (cultural.js), filled in only when needed
+ * An offline form for phones and tablets: the Site Recording Sheet (form.js).
  * It can be added to the home screen and works without signal. Records are kept on the device (IndexedDB)
  * and saved or shared as a file (*.siterecord.json). A record can also be printed or saved as a PDF.
  */
 (function () {
   "use strict";
   const F = window.SITE_RECORDING;
-  // the tabs: where each form keeps its answers and photos in a record
+  // where the form keeps its answers and photos in a record
   const FORMS = [
-    { key: "site", def: F, data: "data", photos: "photos" },
-    { key: "cultural", def: window.CULTURAL_ASSESSMENT, data: "cultural", photos: "culturalPhotos" }
+    { key: "site", def: F, data: "data", photos: "photos" }
   ];
   FORMS.forEach(m => { m.fields = m.def.sections.flatMap(s => s.fields); });
   const app = document.getElementById("app");
@@ -42,16 +39,14 @@
   const fmtTime = t => t ? new Date(t).toLocaleString("en-AU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "";
   const safeLS = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* ignore */ } } };
   const siteTitle = rec => {
-    const d = rec.data || {}, c = rec.cultural || {}, no = d.siteNo || c.siteNo, name = d.siteName || c.siteName;
+    const d = rec.data || {}, no = d.siteNo, name = d.siteName;
     return [no && "Site " + no, name].filter(Boolean).join(" – ") || "Unnamed site";
   };
   const visible = (f, D) => !f.showIf || Object.entries(f.showIf).every(([k, v]) => D[k] === v);
   const filled = v => Array.isArray(v) ? v.some(filled) : v && typeof v === "object" ? Object.values(v).some(filled) : !!(v && String(v).trim());
-  // has anything been entered on a tab? (answers filled in for you don't count: dates, and the site details
-  // the cultural tab copies from the site tab)
-  const PREFILLED = { site: [], cultural: ["siteNo", "siteName", "gps"] };
+  // has anything been entered? (dates filled in for you don't count)
   const started = (rec, m) => (rec[m.photos] || []).length > 0 ||
-    m.fields.some(f => f.type !== "date" && !PREFILLED[m.key].includes(f.id) && filled((rec[m.data] || {})[f.id]));
+    m.fields.some(f => f.type !== "date" && filled((rec[m.data] || {})[f.id]));
 
   /* ---------- storage on the device (IndexedDB) ---------- */
   const DB = (() => {
@@ -73,15 +68,14 @@
   })();
   let persistAsked = false;
   const askPersist = () => { if (persistAsked) return; persistAsked = true; if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); };
-  // records saved before the cultural tab existed get its empty parts
-  const ready = rec => { rec.data = rec.data || {}; rec.photos = rec.photos || []; rec.cultural = rec.cultural || {}; rec.culturalPhotos = rec.culturalPhotos || []; return rec; };
+  const ready = rec => { rec.data = rec.data || {}; rec.photos = rec.photos || []; return rec; };
 
   /* ---------- the file ---------- */
   const isSaved = rec => rec.exportedAt && rec.exportedAt >= rec.updated;
-  const fileName = rec => ("Site recording - " + siteTitle(rec) + " - " + (rec.data.dateRecorded || rec.cultural.assessDate || today()))
+  const fileName = rec => ("Site recording - " + siteTitle(rec) + " - " + (rec.data.dateRecorded || today()))
     .replace(/[\\/:*?"<>|]+/g, "").slice(0, 90) + F.fileExt;
   const fileObject = rec => ({ format: F.fileFormat, version: 2, app: "Site recording app", id: rec.id,
-    created: rec.created, updated: rec.updated, data: rec.data, photos: rec.photos, cultural: rec.cultural, culturalPhotos: rec.culturalPhotos });
+    created: rec.created, updated: rec.updated, data: rec.data, photos: rec.photos });
 
   async function saveFile(rec, mode) {
     const name = fileName(rec);
@@ -110,7 +104,7 @@
         const j = JSON.parse(await f.text());
         if (!j || j.format !== F.fileFormat) throw new Error();
         const rec = ready({ id: j.id || uid(), created: j.created || Date.now(), updated: j.updated || Date.now(), exportedAt: j.updated || Date.now(),
-          data: j.data, photos: j.photos, cultural: j.cultural, culturalPhotos: j.culturalPhotos });
+          data: j.data, photos: j.photos });
         const exists = (await DB.all()).find(r => r.id === rec.id);
         if (exists && !confirm("“" + siteTitle(rec) + "” is already on this device. Replace it with the copy in the file?")) continue;
         await DB.put(rec);
@@ -168,15 +162,14 @@
     show(
       installTip(),
       h("div", { class: "card" },
-        h("h2", null, "Site and cultural assessment"),
-        h("p", { class: "sa-intro" }, "Each record has two tabs: ", h("b", null, "Site assessment"), " (the site recording sheet) and ",
-          h("b", null, "Cultural assessment"), " (cultural site monitoring and reporting). Fill in one or both."),
+        h("h2", null, "Site assessment"),
+        h("p", { class: "sa-intro" }, "Record the site with the site recording sheet. Questions tagged ", h("b", null, "Planning tool"),
+          " fill the Site tab of the planning tool when the file is imported."),
         h("p", { class: "note" }, "Everything is kept on this device until you save or share it. When you finish, tap ", h("b", null, "Save / share file"),
           " to send it, or ", h("b", null, "Print / PDF"), " for a paper copy."),
         h("p", { class: "sensitive" }, F.sensitive),
         h("div", { class: "btn-row" },
-          h("button", { type: "button", class: "btn primary", onclick: () => newRecord("site") }, "+ New site assessment"),
-          h("button", { type: "button", class: "btn", onclick: () => newRecord("cultural") }, "+ New cultural assessment"),
+          h("button", { type: "button", class: "btn primary", onclick: newRecord }, "+ New site assessment"),
           h("label", { class: "btn ghost", for: "openFile" }, "Open a file"), fileIn)),
       recs.length ? recs.map(itemCard) : h("div", { class: "card empty" }, "No records on this device yet."),
       h("p", { class: "note" }, "Also available: ", h("a", { href: "../" }, "Site assessment app (version 1)"), " · ",
@@ -185,12 +178,11 @@
   }
 
   function itemCard(rec) {
-    const d = rec.data, c = rec.cultural, np = rec.photos.length + rec.culturalPhotos.length;
+    const d = rec.data, np = rec.photos.length;
     return h("div", { class: "card sa-item" },
       h("div", { class: "sa-item-title" }, siteTitle(rec)),
-      h("div", { class: "sa-item-meta" }, [fmtDate(d.dateRecorded || c.assessDate), d.recorder || c.assessor, np + " photo" + (np === 1 ? "" : "s"), "edited " + fmtTime(rec.updated)].filter(Boolean).join(" · ")),
-      h("div", { class: "btn-row tight" }, FORMS.map(m => started(rec, m)
-          ? h("span", { class: "badge part" }, "✓ " + m.def.title) : h("span", { class: "badge none" }, m.def.title + ": not started")),
+      h("div", { class: "sa-item-meta" }, [fmtDate(d.dateRecorded), d.recorder, np + " photo" + (np === 1 ? "" : "s"), "edited " + fmtTime(rec.updated)].filter(Boolean).join(" · ")),
+      h("div", { class: "btn-row tight" },
         isSaved(rec) ? h("span", { class: "badge ok" }, "✓ Saved to a file") : h("span", { class: "badge warn" }, "Not saved to a file yet")),
       h("div", { class: "btn-row" },
         h("button", { type: "button", class: "btn small primary", onclick: () => edit(rec) }, "Open"),
@@ -201,18 +193,9 @@
           await DB.del(rec.id); home(); } }, "Delete")));
   }
 
-  async function newRecord(tab) {
-    const rec = ready({ id: uid(), created: Date.now(), updated: Date.now(), exportedAt: 0, data: { dateRecorded: today() }, tab });
-    if (tab === "cultural") rec.cultural.assessDate = today();
+  async function newRecord() {
+    const rec = ready({ id: uid(), created: Date.now(), updated: Date.now(), exportedAt: 0, data: { dateRecorded: today() } });
     await DB.put(rec); askPersist(); edit(rec);
-  }
-
-  // Starting the cultural tab: bring across the site details already entered on the site tab
-  function startCultural(rec) {
-    const c = rec.cultural, d = rec.data;
-    if (Object.keys(c).length) return;
-    ["siteNo", "siteName", "gps", "gpsAccuracy"].forEach(k => { if (d[k]) c[k] = d[k]; });
-    c.assessDate = today();
   }
 
   /* ---------- the form ---------- */
@@ -238,25 +221,17 @@
     const flush = async () => { clearTimeout(timer); await DB.put(rec); };
     const grow = t => { t.style.height = "auto"; t.style.height = Math.min(t.scrollHeight + 2, 600) + "px"; };
 
-    // tabs at the top
-    const tabBar = h("div", { class: "tabs", role: "tablist", "aria-label": "Parts of this record" });
-    const panel = h("div", { role: "tabpanel", id: "tabPanel" });
-    const paintTabs = () => fill(tabBar, FORMS.map(m => h("button", { type: "button", role: "tab", class: "tab", id: "tab-" + m.key,
-      "aria-selected": String(rec.tab === m.key), "aria-controls": "tabPanel",
-      onclick: () => { if (rec.tab === m.key) return; rec.tab = m.key; touch(); paintTabs(); renderTab(); window.scrollTo(0, 0); } },
-      m.def.title, started(rec, m) ? h("span", { class: "tab-tick", "aria-label": "(started)" }, " ✓") : null)));
-    if (!FORMS.some(m => m.key === rec.tab)) rec.tab = "site";
+    const panel = h("div");
 
     function renderTab() {
-      const m = FORMS.find(x => x.key === rec.tab);
-      if (m.key === "cultural") startCultural(rec);
+      const m = FORMS[0];
       const D = rec[m.data], P = rec[m.photos];
       const boxes = {};   // field id -> box, for questions shown only after another answer
       const refresh = () => {
         m.fields.forEach(f => { if (f.showIf && boxes[f.id]) boxes[f.id].hidden = !visible(f, D); });
         panel.querySelectorAll("[data-warn-field]").forEach(w => { w.hidden = !(D[w.dataset.warnField] || []).includes(w.dataset.warnHas); });
       };
-      const changed = () => { touch(); refresh(); const t = tabBar.querySelector("#tab-" + m.key + " .tab-tick"); if (!t && started(rec, m)) paintTabs(); };
+      const changed = () => { touch(); refresh(); };
       const textInput = (id, attrs, obj) => { obj = obj || D;
         return h("input", Object.assign({ type: "text", value: obj[id] || "", oninput: e => { obj[id] = e.target.value; changed(); } }, attrs)); };
       const textArea = (id, attrs, obj) => { obj = obj || D;
@@ -426,16 +401,13 @@
           h("p", { class: "note" }, "Photos are made smaller to keep the file easy to send."));
       }
 
-      const other = FORMS.find(x => x !== m);
       fill(panel,
         h("p", { class: "sa-intro" }, m.def.intro),
         m.def.sections.map(sec => [h("div", { class: "sa-section" }, sec.title), sec.note ? h("p", { class: "note sec-note" }, sec.note) : null, sec.fields.map(fieldBox)]),
         h("div", { class: "card" },
           h("h2", null, "Finished?"),
-          h("p", null, "Tap ", h("b", null, "Save / share file"), " to send the record (e.g. by email, AirDrop, Teams or to Files), or make a paper or PDF copy. The file holds both tabs."),
+          h("p", null, "Tap ", h("b", null, "Save / share file"), " to send the record (e.g. by email, AirDrop, Teams or to Files), or make a paper or PDF copy. The person writing the plan imports the file in the planning tool (Site tab \u2192 Import a site assessment)."),
           h("div", { class: "btn-row" },
-            h("button", { type: "button", class: "btn small", onclick: () => { rec.tab = other.key; touch(); paintTabs(); renderTab(); window.scrollTo(0, 0); } },
-              (started(rec, other) ? "Go to " : "Also do a ") + other.def.title.toLowerCase() + " →"),
             h("button", { type: "button", class: "btn small", onclick: () => leave(() => printView(rec)) }, "Print / PDF"),
             h("button", { type: "button", class: "link-btn", onclick: () => saveFile(rec, "download").then(ok => { if (ok) status.textContent = "Saved to a file ✓"; }) }, "Download the file instead"))));
       panel.querySelectorAll("textarea").forEach(grow);
@@ -451,10 +423,9 @@
     removeBar();
     document.body.append(bar);
 
-    paintTabs(); renderTab();
+    renderTab();
     show(
       h("button", { type: "button", class: "link-btn sa-back", onclick: () => leave(home) }, "← All records"),
-      h("div", { class: "tabs-wrap" }, tabBar),
       h("p", { class: "sensitive" }, F.sensitive),
       panel);
     window.scrollTo(0, 0);
