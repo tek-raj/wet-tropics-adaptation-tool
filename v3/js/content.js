@@ -142,11 +142,11 @@ window.APP_CONTENT = {
             ["Recovery plans and conservation advice (DCCEEW)", "https://www.dcceew.gov.au/environment/biodiversity/threatened/recovery-plans"],
             ["Threatened species literature reviews (TERN EMSA)", "https://emsa.tern.org.au/threatened-species-resources#Literature-Reviews"],
             ["EPBC threatened ecological communities (DCCEEW)", "https://www.dcceew.gov.au/environment/biodiversity/threatened/communities"] ] } },
-      { id: "personality", label: "Personality and behaviour of the species", type: "textarea", rows: 3,
+      { id: "personality", label: "Personality of the species", type: "textarea", rows: 3,
         help: {
-          instructions: "Describe how the species typically behaves: shy or bold, social or solitary, active by day or night, territorial, loyal to particular sites, and how it reacts to people, noise and disturbance. For an ecosystem, leave this blank or note the behaviour of its key species.",
-          examples: "Highly social; roosts in large, noisy colonies and returns to the same roost sites each year. Easily disturbed at the roost, especially while raising young.\nShy and solitary; mostly active at night; avoids open ground and people.\nBold and curious; quickly gets used to people, which leads to road strike and dog attacks.",
-          guidance: "Behaviour affects both how the species copes with climate hazards and which actions will work. For example, a species that is loyal to one roost or nest site may not move away from a site that is becoming too hot; a shy species may abandon a site after works or monitoring; a species that tolerates people may be easier to monitor but more exposed to cars and pets. Local and Traditional Owner knowledge is often the best source.",
+          instructions: "Describe the species’ personality: for example shy or bold, social or solitary, calm or easily stressed, curious or wary of people. For an ecosystem, leave this blank.",
+          examples: "Highly social and noisy; easily stressed, especially while raising young.\nShy and solitary; wary of people.\nBold and curious; quickly gets used to people.",
+          guidance: "Personality affects how the species copes with climate hazards and which actions will work. For example, a shy or easily stressed species may abandon a site after works or monitoring, while a bold species that gets used to people may be easier to monitor but more exposed to cars and pets. Local and Traditional Owner knowledge is often the best source.",
           moreInfo: null } },
       { id: "importance", label: "Why is it important?", type: "textarea", rows: 3,
         help: {

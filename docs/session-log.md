@@ -375,3 +375,5 @@
 - site-assessment/v2/: cultural assessment removed (cultural.js deleted, no tabs, no "New cultural assessment", file no longer has cultural/culturalPhotos). Now titled "Site Assessment · Site recording sheet · Version 2 (draft)"; service worker cache bumped to site-recording-v4 so devices update. Records on devices keep any old cultural answers in storage, but they are no longer shown or saved to files.
 - v4/ folder deleted (it was never in git).
 - Tests: v2 app (no tab bar, 29 boxes + photo, file, offline), V3 import of the v2 file and an older file with a cultural part, first-app file, Fulcrum GeoJSON with 2 photos, Species fields in the plan and example reports (PDF and Word).
+## 2026-10-26 (later) — V3: "Personality of the species" (local)
+- Renamed from "Personality and behaviour of the species". The help now asks only about personality (shy or bold, social or solitary, calm or easily stressed, curious or wary of people); the behaviour wording is removed. The worked example text and viewer label were shortened to match. The report shows the new label.

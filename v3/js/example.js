@@ -20,7 +20,7 @@ window.EXAMPLE_PLAN = {
   species: {
     name: "Spectacled flying-fox (Pteropus conspicillatus)",
     habitat: "Roosts in large colonies (camps) in rainforest, mangroves, paperbark and eucalypt forest, including several urban camps in the Cairns region. Feeds at night on the nectar, pollen and fruit of rainforest, eucalypt and melaleuca trees, travelling long distances between roosts and feeding areas. Females usually raise one young a year; pups are born in late spring and depend on their mothers for several months.",
-    personality: "Highly social and noisy; roosts in large camps and returns to the same roost sites year after year. Active at night, flying long distances to feed. Easily disturbed at the roost, especially while females are carrying or raising young; disturbance during a heatwave can cause more deaths.",
+    personality: "Highly social and noisy. Easily stressed by disturbance, especially while females are carrying or raising young; disturbance during a heatwave can cause more deaths.",
     importance: "Endangered species. Key pollinator and long-distance seed disperser for Wet Tropics rainforest. Cultural values to be confirmed with Traditional Owners.",
     epbc: "Endangered",
     state: "Queensland",
