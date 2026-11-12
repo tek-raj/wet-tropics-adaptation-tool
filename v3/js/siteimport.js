@@ -91,13 +91,18 @@
     Object.values(FD).filter(f => f.plan).forEach(f => put(f.plan, f.type === "date" ? d[f.id] : f.type === "choice" ? d[f.id] : ans(f.id)));
     // boxes built from more than one answer
     put("placeName", [d.siteNo && "Site " + d.siteNo, d.siteName].filter(Boolean).join(" – "));
-    put("environment", d.environment, lines([["Site description", d.siteDescription], ["Site type", ans("siteType")], ["Site components", ans("components")],
-      ["Landform", ans("landform")], ["Land tenure", ans("tenure")], ["Vegetation", d.vegetation], ["Vegetation type", ans("vegType")],
-      ["Known bush tucker plants near the site", d.bushTucker], ["Local geology", d.geology], ["Nearest water source", d.water],
-      ["Map", d.map], ["How to get there", d.access]]));
-    put("condition", d.condition, lines([["Current impacts/activities", d.currentImpacts], ["Potential future impacts", d.futureImpacts]]));
+    // Site description fills "Description of environment" (files saved before Nov 2026 may also have a separate
+    // environment answer, vegetation, geology and water source: these are kept, labelled)
+    put("environment", d.environment, d.environment ? lines([["Site description", d.siteDescription]]) : d.siteDescription,
+      lines([["Landform", ans("landform")], ["Land tenure", ans("tenure")],
+        ["Plants or landscape elements associated with the species or site", d.bushTucker],
+        ["Vegetation", d.vegetation], ["Local geology", d.geology], ["Nearest water source", d.water],
+        ["Map", d.map], ["How to get there", d.access]]));
+    put("condition", d.condition, lines([["Changes since the last visit", d.changes],
+      ["Landscape health score", ans("landscapeHealth")], ["Landscape health", d.landscapeDescribe],
+      ["Current impacts/activities", d.currentImpacts], ["Potential future impacts", d.futureImpacts]]));
     put("mgmtPlans", d.mgmtPlan, lines([["Management plan (earlier recording)", d.prevMgmtPlan], ["Management options/recommendations", d.recommendations]]));
-    put("photoPoints", d.photoPoints, d.photoNumbers && "Photo numbers (other camera): " + d.photoNumbers);
+    put("photoPoints", d.photoPoints, lines([["Photos from past assessments (where held)", d.pastPhotos], ["Photo numbers (other camera)", d.photoNumbers]]));
     put("people", d.people, lines([["Recorder", d.recorder], ["Traditional Owner group", d.toGroup], ["Elders", d.elders],
       ["Area under Native Title claim", [ans("nativeTitle"), d.nativeTitleWho].filter(Boolean).join(" – ")],
       ["Site previously recorded by", d.prevWho], ["Earlier information held at", d.prevInfoHeld]]));
@@ -111,7 +116,22 @@
     const name = [d.siteNo ? "Site " + d.siteNo : "", d.siteName].filter(Boolean).join(" \u2013 ") || "Unnamed site";
     return { kind: "recording", source: "Site assessment app v2 (" + fileName + ")",
       site: siteDone ? siteFromRecording(d) : {}, photos: siteDone ? (j.photos || []) : [],
+      hazards: hazardsFromRecording(d),
       title: [name, d.dateRecorded].filter(Boolean).join(" \u2013 ") };
+  }
+
+  // Climate hazards discussed at the site -> the Exposure box of the same hazard on the Risk assessment tab
+  // (a hazard chosen more than once has its comments joined)
+  function hazardsFromRecording(d) {
+    const by = {};
+    (Array.isArray(d.hazards) ? d.hazards : []).forEach(r => {
+      const label = String(r.hazard || "").trim(), note = String(r.comment || "").trim();
+      if (!label) return;
+      (by[label] = by[label] || []).push(note);
+    });
+    return Object.entries(by).map(([label, notes]) => ({ label,
+      exposure: "Noted at the site assessment" + (d.dateRecorded ? " (" + d.dateRecorded.split("-").reverse().join("/") + ")" : "") + ": " +
+        (notes.filter(Boolean).join(" ") || "hazard discussed, no comment recorded.") }));
   }
 
   // Read the chosen files into a list of candidate records
@@ -181,6 +201,8 @@
     const r = await pick(recs); if (!r) return;
     const photos = (r.photos || []).filter(p => p && p.data).map(p => ({ id: A().uid(), data: p.data, w: p.w, h: p.h, caption: p.caption || "" }));
     const fragment = { start: {}, site: { ...r.site, photos } };
+    // climate hazards discussed at the site go to the Risk assessment tab (Exposure)
+    if ((r.hazards || []).length) fragment.risk = { hazards: r.hazards.map(x => ({ ...x, custom: x.label === "Other" })) };
     delete fragment.site.gpsAccuracy;
     window.MergeTool.mergePlans([{ p: fragment, source: r.source }], {
       title: "Site assessment imported",
@@ -189,6 +211,7 @@
       lines: (stats, who) => ["From: " + who, stats.filled + (stats.filled === 1 ? " box filled" : " boxes filled"),
         stats.photos + (stats.photos === 1 ? " photo added" : " photos added")]
         .concat(r.missing ? [r.missing + " photo(s) listed in the record were not among the chosen files"] : [])
+        .concat((r.hazards || []).length ? [r.hazards.length + " climate hazard(s) discussed at the site: notes added to the Exposure box on the Risk assessment tab"] : [])
     });
   }
 

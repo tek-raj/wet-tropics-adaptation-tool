@@ -145,7 +145,7 @@ window.APP_CONTENT = {
       { id: "personality", label: "Personality of the species", type: "textarea", rows: 3,
         help: {
           instructions: "Describe the species’ personality: for example shy or bold, social or solitary, calm or easily stressed, curious or wary of people. For an ecosystem, leave this blank.",
-          examples: "Highly social and noisy; easily stressed, especially while raising young.\nShy and solitary; wary of people.\nBold and curious; quickly gets used to people.",
+          examples: "Highly social and noisy; easily stressed, especially while raising young.\nShy and solitary; wary of people.\nBold and curious; quickly gets used to people.\nBarramundi are fat when the wattles (Acacia) are flowering.",
           guidance: "Personality affects how the species copes with climate hazards and which actions will work. For example, a shy or easily stressed species may abandon a site after works or monitoring, while a bold species that gets used to people may be easier to monitor but more exposed to cars and pets. Local and Traditional Owner knowledge is often the best source.",
           moreInfo: null } },
       { id: "importance", label: "Why is it important?", type: "textarea", rows: 3,

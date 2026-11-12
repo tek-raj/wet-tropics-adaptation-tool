@@ -252,8 +252,10 @@
         else body = textInput(f.id, { id: inputId, placeholder: f.placeholder });
         const group = ["yesno", "choice", "checks", "photos", "table", "signoff"].includes(f.type);
         const labelEl = group ? h("div", { class: "field-label", id: inputId + "-label" }, f.label) : h("label", { class: "field-label", for: inputId }, f.label);
-        // questions used by the planning tool: a tag, and the same help as the planning tool ("i" button)
-        const pf = f.plan && PLAN_FIELD[f.plan], help = pf && pf.help ? helpBlock(pf.help) : null;
+        // questions used by the planning tool: a tag, and the same help as the planning tool ("i" button).
+        // A question's own help (f.help) is used instead where the question is worded differently.
+        const pf = f.plan && PLAN_FIELD[f.plan], ownHelp = f.help || (pf && pf.help);
+        const help = ownHelp ? helpBlock(ownHelp) : null;
         const info = help ? h("button", { type: "button", class: "info-btn", "aria-expanded": "false", "aria-label": "Help for " + f.label,
           onclick: () => { help.hidden = !help.hidden; info.setAttribute("aria-expanded", String(!help.hidden)); } }, "i") : null;
         const box = h("div", { class: "field" + (f.showIf ? " follow-up" : "") },
@@ -303,17 +305,26 @@
         return wrap;
       }
 
-      // Table: one card per row, rows can be added and removed
+      // Table: one card per row, rows can be added and removed.
+      // A "select" column is a drop-down; choosing it in the last row adds a new empty row below.
       function tableBlock(f) {
         if (!Array.isArray(D[f.id]) || !D[f.id].length) D[f.id] = Array.from({ length: f.rows || 1 }, () => ({}));
         const rows = D[f.id], list = h("div", { class: "trows" });
+        const select = (cid, id, r, options) => {
+          const s = h("select", { id, onchange: e => {
+            r[cid] = e.target.value; changed();
+            if (r[cid] && rows[rows.length - 1] === r) { rows.push({}); paint(); }
+          } }, h("option", { value: "" }, "— choose —"), (options || []).map(o => h("option", { value: o }, o)));
+          s.value = r[cid] || "";
+          return s;
+        };
         const paint = () => fill(list, rows.map((r, i) => h("div", { class: "trow" },
-          h("div", { class: "trow-head" }, h("span", null, f.label.replace(/s$/, "") + " " + (i + 1)),
+          h("div", { class: "trow-head" }, h("span", null, (f.rowLabel || f.label.replace(/s$/, "")) + " " + (i + 1)),
             rows.length > 1 ? h("button", { type: "button", class: "link-btn", onclick: () => {
               if (filled(r) && !confirm("Remove row " + (i + 1) + "?")) return; rows.splice(i, 1); changed(); paint(); } }, "Remove") : null),
-          f.columns.map(([cid, clabel, ctype]) => { const id = "f-" + f.id + "-" + i + "-" + cid;
+          f.columns.map(([cid, clabel, ctype, options]) => { const id = "f-" + f.id + "-" + i + "-" + cid;
             return h("div", { class: "tcell" }, h("label", { for: id }, clabel),
-              ctype === "textarea" ? textArea(cid, { id, rows: 2 }, r) : textInput(cid, { id }, r)); }))));
+              ctype === "textarea" ? textArea(cid, { id, rows: 2 }, r) : ctype === "select" ? select(cid, id, r, options) : textInput(cid, { id }, r)); }))));
         paint();
         return [list, h("button", { type: "button", class: "btn small", onclick: () => { rows.push({}); changed(); paint();
           const last = list.lastElementChild && list.lastElementChild.querySelector("input,textarea"); if (last) last.focus(); } }, f.addLabel || "+ Add a row")];
@@ -413,7 +424,8 @@
       panel.querySelectorAll("textarea").forEach(grow);
     }
 
-    const leave = async to => { await flush(); removeBar(); to(); };
+    // leaving a record with nothing entered deletes it, so no empty "Unnamed site" records are left behind
+    const leave = async to => { await flush(); removeBar(); if (!started(rec, FORMS[0])) await DB.del(rec.id); to(); };
     const bar = h("div", { class: "sa-bar" }, h("div", { class: "sa-bar-inner" }, status,
       h("button", { type: "button", class: "btn ghost small", onclick: () => leave(home) }, "Done"),
       h("button", { type: "button", class: "btn primary", onclick: async () => {

@@ -6,6 +6,9 @@
  * plan: "<id>" marks a question that fills a box on the planning tool's Site tab (content.js, site.fields). It shows
  * that box's help (the "i" button, same as the first Site assessment app) and is imported into the planning tool.
  * Together these cover every question on the planning tool's Site tab.
+ * help: { instructions, examples, guidance } gives a question its own "i" help (used instead of the planning tool's).
+ * table columns: [id, label, type, options]; type "select" is a drop-down of options.
+ * Updated after a review by the project team (Nov 2026).
  */
 window.SITE_RECORDING = {
   title: "Site assessment",
@@ -33,64 +36,63 @@ window.SITE_RECORDING = {
       { id: "propertyName", label: "Property or area name", type: "text", plan: "propertyName" },
       { id: "gps", label: "GPS location", type: "gps", hint: "Latitude, longitude (decimal degrees)", plan: "gps" },
       { id: "map", label: "Map name, scale and series", type: "text" },
-      { id: "toGroup", label: "Traditional Owner group", type: "text" },
-      { id: "elders", label: "Elders", type: "textarea", rows: 2 },
       { id: "tenure", label: "Land tenure", type: "checks", options: [
         ["nationalPark", "National Park"], ["stateForest", "State Forest"], ["freehold", "Freehold"], ["reserve", "Reserve"], ["other", "Other"] ] },
-      { id: "landOwner", label: "Current land owner details", type: "textarea", rows: 2, plan: "propertyContact" },
+      { id: "landOwner", label: "Current land owner details (if relevant)", type: "textarea", rows: 2, plan: "propertyContact" },
       { id: "landform", label: "Landform", type: "checks", options: [
         ["creekBank", "River/creek bank"], ["beachDune", "Coastal beach/dune"], ["estuary", "River/creek estuary"],
         ["floodplain", "Floodplain"], ["hillSlope", "Hill slope"], ["cultivation", "Under cultivation"], ["other", "Other"] ] },
-      { id: "nativeTitle", label: "Area under Native Title claim?", type: "yesno" },
-      { id: "nativeTitleWho", label: "Who? (Native Title claimant)", type: "text", showIf: { nativeTitle: "yes" } },
       { id: "access", label: "Description of location (how to get there)", type: "textarea", rows: 3 }
     ] },
-    { title: "The site", fields: [
-      { id: "siteType", label: "Site type", type: "checks", options: [
-        ["rockshelter", "Rockshelter"], ["shellScatter", "Shell scatter"], ["shellMidden", "Shell midden"], ["isolatedArtefact", "Isolated artefact"],
-        ["artefactScatter", "Artefact scatter"], ["artefactShellScatter", "Artefact & shell scatter"], ["fishtrap", "Fishtrap"], ["fireplace", "Fireplace"],
-        ["stoneArrangement", "Stone arrangement"], ["burial", "Burial"], ["campsite", "Campsite"], ["stoneCarving", "Stone carving"],
-        ["carvedTree", "Carved tree"], ["scarredTree", "Scarred tree"], ["axeGroove", "Axe grinding groove"], ["nativeWell", "Native well"],
-        ["storyPlace", "Story place/spiritual area"], ["historicSite", "Historic site (camp)"] ] },
-      { id: "siteDescription", label: "Site description", type: "textarea", rows: 5 },
-      { id: "components", label: "Site components", type: "checks", options: [
-        ["stoneArtefacts", "Stone artefacts", "Number"], ["marineShell", "Marine shell"], ["freshwaterShell", "Freshwater shell"],
-        ["charcoal", "Charcoal"], ["ochre", "Ochre"], ["paintings", "Paintings"],
-        ["manuports", "Manuports"], ["engravings", "Engravings"], ["bonesHuman", "Bones – human", "Details"], ["bonesAnimal", "Bones – animal", "Details"],
-        ["storyPlace", "Story place/spirit place"], ["other", "Other"] ] }
-    ] },
     { title: "Surroundings", fields: [
-      { id: "environment", label: "Description of environment", type: "textarea", rows: 3, plan: "environment" },
-      { id: "vegetation", label: "Vegetation (describe)", type: "textarea", rows: 3 },
-      { id: "vegType", label: "Vegetation type", type: "checks", options: [
-        ["openForest", "Open forest"], ["closedForest", "Closed forest"], ["grasslands", "Grasslands"], ["mangroves", "Mangroves"],
-        ["riparian", "Riparian (creek bank veg.)"], ["regrowth", "Regrowth scrub"], ["other", "Other"] ] },
-      { id: "bushTucker", label: "Known bush tucker plants in area near site", type: "textarea", rows: 3 },
-      { id: "geology", label: "Local geology", type: "text" },
-      { id: "water", label: "Nearest water source (distance and name)", type: "textarea", rows: 2 },
+      // Site description fills the planning tool's "Description of environment" box (one question, not two)
+      { id: "siteDescription", label: "Site description", type: "textarea", rows: 5, plan: "environment" },
+      // id kept as "bushTucker" so records saved earlier still show their answer here
+      { id: "bushTucker", label: "Can you see plants or landscape elements associated with your selected species or site?", type: "textarea", rows: 3,
+        hint: "For example, food or shelter plants, nesting or roosting trees, rock outcrops, waterholes or creek banks the species uses." },
       { id: "sightings", label: "Sightings or records of the species or ecosystem", type: "textarea", rows: 2, plan: "sightings" }
     ] },
     { title: "Photos", fields: [
       { id: "photos", label: "Site photos", type: "photos" },
       { id: "photoPoints", label: "Photo monitoring points", type: "textarea", rows: 3, plan: "photoPoints" },
-      { id: "photoNumbers", label: "Photo numbers (from another camera)", type: "textarea", rows: 2,
-        hint: "Photos taken in this app are numbered for you. Use this box for photos taken on a separate camera." }
+      { id: "pastPhotos", label: "Are there photos of this site from past assessments? Where are those photos held?", type: "textarea", rows: 2 }
     ] },
     { title: "Condition, impacts and management", fields: [
       { id: "condition", label: "Current condition", type: "textarea", rows: 3, plan: "condition" },
+      { id: "changes", label: "What changes do you notice from the last visit?", type: "textarea", rows: 3,
+        hint: "Leave blank if this is the first visit." },
+      { id: "landscapeHealth", label: "Landscape health score (1–3)", type: "choice",
+        options: [["1", "1 – Poor"], ["2", "2 – Fair"], ["3", "3 – Good"]],
+        help: {
+          instructions: "Give the site an overall landscape health score, then describe what you see in the box below.",
+          examples: "1 – Poor: weeds cover much of the site, rubbish or pollution is common, and little native vegetation remains.\n2 – Fair: some weeds and pollution, and native vegetation is patchy or partly cleared.\n3 – Good: few or no weeds, no pollution seen, and native vegetation is extensive and healthy.",
+          guidance: "Consider:\n• invasive weeds: which ones, and how widespread\n• pollution: rubbish, chemicals, runoff, oil or sewage\n• extent of native vegetation: how much remains, and its condition\n• other damage, such as erosion, feral animal or stock damage, or recent fire" } },
+      { id: "landscapeDescribe", label: "Landscape health – describe", type: "textarea", rows: 4,
+        hint: "Invasive weeds, pollution, and the extent and condition of native vegetation." },
       { id: "currentImpacts", label: "Current impacts/activities to site and area", type: "textarea", rows: 4 },
       { id: "futureImpacts", label: "Potential future impacts", type: "textarea", rows: 4 },
       { id: "recommendations", label: "Management options/recommendations", type: "textarea", rows: 6 },
       { id: "mgmtPlan", label: "Current management plan(s)", type: "textarea", rows: 2, plan: "mgmtPlans" },
       { id: "monitoring", label: "Existing monitoring at the site (if any)", type: "textarea", rows: 2, plan: "monitoring" }
     ] },
+    { title: "Climate hazards", fields: [
+      // one row per hazard; the list is the planning tool's hazards (content.js, risk.hazards)
+      { id: "hazards", label: "Climate hazards at this site", type: "table", rows: 1, rowLabel: "Hazard", addLabel: "+ Add another hazard",
+        hint: "Discuss the climate hazards identified in the pre-site visit discussion. Choose a hazard and note what you see at the site, e.g. signs it is already happening, or parts of the site that are most exposed. A new row appears when you choose a hazard.",
+        columns: [["hazard", "Climate hazard", "select", (((window.APP_CONTENT || {}).risk || {}).hazards || []).concat(["Other"])],
+                  ["comment", "Comments", "textarea"]] }
+    ] },
     { title: "Optional", fields: [
-      { id: "seasonal", label: "Seasonal calendar notes", type: "textarea", rows: 3, plan: "seasonal" }
+      { id: "seasonal", label: "How is this site and species affected by seasonal or climate changes?", type: "textarea", rows: 3, plan: "seasonal",
+        hint: "For example, for platypus this is wet season flooding.",
+        help: {
+          instructions: "Describe how the site and the species are affected by the seasons or by changes in climate.",
+          examples: "Platypus: wet season flooding scours burrows in the creek bank.\nFlying-foxes: food is scarce for months after a cyclone.\nThe creek now stops flowing earlier in the dry season than it used to.",
+          guidance: "Think about the wet and dry seasons, fire, cyclone and flood seasons, and any changes you or Traditional Owners have noticed over the years, such as plants flowering earlier or the wet season starting later." } }
     ] },
     { title: "Office use", fields: [
       { id: "inDatabase", label: "Site recorded in database", type: "yesno" },
-      { id: "photosWithFile", label: "Photographs with data file", type: "yesno" },
-      { id: "enteredBy", label: "Signature/date entered", type: "text" }
+      { id: "photosWithFile", label: "Photographs with data file", type: "yesno" }
     ] }
   ]
 };

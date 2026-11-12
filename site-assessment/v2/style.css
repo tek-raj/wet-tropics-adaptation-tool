@@ -69,3 +69,6 @@
 /* questions that fill the planning tool's Site tab */
 .field-title { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; }
 .plan-tag { font-size: .7rem; font-weight: 700; letter-spacing: .03em; color: var(--green-dark); background: var(--green-soft); border-radius: 999px; padding: 1px 8px; }
+
+/* drop-down in tables (e.g. Climate hazards) */
+.tcell select { width: 100%; min-height: 46px; border: 1px solid #b9c6bf; border-radius: 8px; padding: 10px 12px; background: #fff; font-size: 16px; }
