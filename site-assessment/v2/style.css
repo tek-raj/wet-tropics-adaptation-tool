@@ -72,3 +72,7 @@
 
 /* drop-down in tables (e.g. Climate hazards) */
 .tcell select { width: 100%; min-height: 46px; border: 1px solid #b9c6bf; border-radius: 8px; padding: 10px 12px; background: #fff; font-size: 16px; }
+
+/* "new version ready" message */
+.update-bar { position: fixed; top: calc(10px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); z-index: 50; display: flex; gap: 12px; align-items: center; background: #164536; color: #fff; padding: 10px 14px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,.25); font-size: .92rem; width: max-content; max-width: calc(100% - 24px); }
+.update-bar .btn { border-color: #fff; }

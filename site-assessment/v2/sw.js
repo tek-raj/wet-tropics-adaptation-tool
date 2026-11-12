@@ -3,7 +3,7 @@
  * Files are served from the device first; when online, a fresh copy is fetched in the background
  * so the next launch gets any update. Change CACHE to force every device to start over.
  */
-const CACHE = "site-recording-v5";   // v5: changes after the team review (Nov 2026)
+const CACHE = "site-recording-v6";   // v6: updates always fetch fresh files (not the browser's 10-minute copy)
 const FILES = [
   "./", "./index.html", "./app.js", "./form.js", "./style.css", "./manifest.webmanifest",
   "../style.css",                           // shared look with the site assessment app
@@ -13,7 +13,8 @@ const FILES = [
 ];
 
 self.addEventListener("install", e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
+  // cache: "reload" skips the browser's own short-term copy, so a new version never stores old files
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES.map(u => new Request(u, { cache: "reload" })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", e => {
@@ -28,7 +29,8 @@ self.addEventListener("fetch", e => {
   if (req.method !== "GET" || new URL(req.url).origin !== self.location.origin) return;
   e.respondWith(caches.open(CACHE).then(async cache => {
     const cached = await cache.match(req, { ignoreSearch: true });
-    const fresh = fetch(req).then(res => { if (res && res.ok) cache.put(req, res.clone()); return res; }).catch(() => null);
+    // check with the server for a newer copy (not the browser's short-term copy)
+    const fresh = fetch(req.url, { cache: "no-cache", credentials: "same-origin" }).then(res => { if (res && res.ok) cache.put(req, res.clone()); return res; }).catch(() => null);
     if (cached) { e.waitUntil(fresh); return cached; }
     const res = await fresh;
     if (res) return res;

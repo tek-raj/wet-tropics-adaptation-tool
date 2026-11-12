@@ -504,7 +504,17 @@
   const net = document.getElementById("netStatus");
   const showNet = () => { net.hidden = navigator.onLine; };
   window.addEventListener("online", showNet); window.addEventListener("offline", showNet); showNet();
-  if ("serviceWorker" in navigator && location.protocol !== "file:") navigator.serviceWorker.register("sw.js").catch(() => {});
+  if ("serviceWorker" in navigator && location.protocol !== "file:") {
+    // When a new version has been downloaded, offer to reload so it is used straight away (answers are already saved).
+    const hadController = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (!hadController || document.getElementById("updateBar")) return;
+      document.body.append(h("div", { id: "updateBar", class: "update-bar", role: "status" },
+        h("span", null, "A new version of the app is ready."),
+        h("button", { type: "button", class: "btn small primary", onclick: () => location.reload() }, "Reload")));
+    });
+    navigator.serviceWorker.register("sw.js").then(reg => reg.update()).catch(() => {});
+  }
   home().catch(e => { show(h("div", { class: "card" }, "This device could not open its storage for the app. ", String(e && e.message || e))); });
   window.SiteRecordApp = { DB, fileObject };   // for testing
 })();

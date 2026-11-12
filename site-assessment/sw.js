@@ -3,7 +3,7 @@
  * Files are served from the device first; when online, a fresh copy is fetched in the background
  * so the next launch gets any update. Change CACHE to force every device to start over.
  */
-const CACHE = "site-assessment-v1";
+const CACHE = "site-assessment-v2";
 const FILES = [
   "./", "./index.html", "./app.js", "./style.css", "./manifest.webmanifest",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/icon-maskable-512.png",
@@ -12,7 +12,7 @@ const FILES = [
 ];
 
 self.addEventListener("install", e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES.map(u => new Request(u, { cache: "reload" })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", e => {
@@ -27,7 +27,7 @@ self.addEventListener("fetch", e => {
   if (req.method !== "GET" || new URL(req.url).origin !== self.location.origin) return;
   e.respondWith(caches.open(CACHE).then(async cache => {
     const cached = await cache.match(req, { ignoreSearch: true });
-    const fresh = fetch(req).then(res => { if (res && res.ok) cache.put(req, res.clone()); return res; }).catch(() => null);
+    const fresh = fetch(req.url, { cache: "no-cache", credentials: "same-origin" }).then(res => { if (res && res.ok) cache.put(req, res.clone()); return res; }).catch(() => null);
     if (cached) { e.waitUntil(fresh); return cached; }
     const res = await fresh;
     if (res) return res;

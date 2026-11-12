@@ -392,3 +392,8 @@
 - Checked the code (no fetch/XHR/beacon/analytics apart from the service workers downloading the apps' own files; sharing only via the user's Save / share file) and ran both apps while recording every request: no uploads (no POST/PUT) and no requests to other websites.
 - Fixed: V3 loaded the Open Sans font from Google Fonts on every page load. Removed; it now uses the computer's own fonts, so it makes no outside requests.
 - Site Assessment app v2: a record left with nothing entered is now deleted on leaving, so no empty "Unnamed site" records are left behind.- Pushed: Site Assessment app v2 changes, V3 import updates, Google font removal, Barramundi example. Not pushed: the draft Overview flowchart (v3/js/overview.js, app.js, style.css) and the review notes file.
+
+## 2026-11-13 (later) — Site Assessment apps: updates reach installed devices reliably; pushed
+- The user's device still showed the old questions after the push (e.g. "Known bush tucker plants"), although the live files were correct. The cause: the service worker refreshed its copy with plain fetch(), which can reuse the browser's 10-minute HTTP cache (GitHub Pages max-age=600), so an update could store old files.
+- Fixed in both apps (site-assessment/sw.js → site-assessment-v2, site-assessment/v2/sw.js → site-recording-v6): install uses cache "reload" and refreshes use "no-cache". The v2 app also checks for an update on opening and shows "A new version of the app is ready" with a Reload button.
+- Tested with a server sending the same caching header: an installed copy got the new version, showed the message, and showed the new questions after Reload and offline.
